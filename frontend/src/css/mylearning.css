@@ -1,0 +1,401 @@
+/* mylearning.css */
+
+.mlpage{
+  padding:10px;
+}
+
+.mlhead h1{
+  font-size:34px;
+  margin-bottom:6px;
+  color:#111827;
+}
+
+.mlhead p{
+  color:#6b7280;
+  margin-bottom:24px;
+}
+
+.mlstats{
+  display:flex;
+  gap:18px;
+  margin-bottom:25px;
+}
+
+.mlstat{
+  flex:1;
+  padding:20px;
+  border-radius:18px;
+  border:1px solid #e5e7eb;
+}
+
+.mlstat h2{
+  margin:10px 0 4px;
+  font-size:28px;
+}
+
+.mlstat span{
+  color:#6b7280;
+  font-size:14px;
+}
+
+.blue{
+  background:#eef4ff;
+}
+
+.orange{
+  background:#fff4e8;
+}
+
+.green{
+  background:#edfdf5;
+}
+
+.sicon{
+  font-size:20px;
+}
+
+.mltabs{
+  display:flex;
+  gap:12px;
+  margin-bottom:24px;
+}
+
+.mltab{
+  flex:1;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#f3f4f6;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.mltab.active{
+  background:#ffffff;
+  color:#2563eb;
+  border:1px solid #dbeafe;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.mllist{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.mlcard{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:18px;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.mlimg{
+  width:120px;
+  height:80px;
+  object-fit:cover;
+  border-radius:14px;
+}
+
+.mlinfo{
+  flex:1;
+}
+
+.mlinfo h3{
+  font-size:18px;
+  margin-bottom:4px;
+  color:#111827;
+}
+
+.mlinfo p{
+  font-size:14px;
+  color:#6b7280;
+  margin-bottom:14px;
+}
+
+.mlprogress{
+  width:100%;
+  height:8px;
+  background:#e5e7eb;
+  border-radius:20px;
+  overflow:hidden;
+  margin-bottom:10px;
+}
+
+.mlfill{
+  height:100%;
+  background:#22c55e;
+  border-radius:20px;
+}
+
+.mlbottom{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+  color:#6b7280;
+}
+
+.playbtn{
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:50%;
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.chart-card{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  margin-bottom:30px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.chart-title{
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:20px;
+}
+
+.badge-card{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.badge-title{
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:20px;
+}
+
+.badge-list{
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.badge-item{
+  background:#EEF2FF;
+  color:#4F46E5;
+  padding:12px 18px;
+  border-radius:30px;
+  font-weight:600;
+}
+
+.extra-learning-info{
+  margin-top:10px;
+  margin-bottom:10px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  font-size:13px;
+  color:#6B7280;
+}
+
+
+/* COURSE WRAPPER */
+
+.course-wrapper{
+  margin-bottom:30px;
+}
+
+/* COURSE CARD */
+
+.mlcard{
+  background:#ffffff;
+  border-radius:24px;
+  padding:18px;
+  display:flex;
+  align-items:center;
+  gap:20px;
+  border:1px solid #E5E7EB;
+  box-shadow:
+  0 4px 20px rgba(0,0,0,0.05);
+  text-decoration:none;
+  transition:0.3s;
+  position:relative;
+  overflow:hidden;
+}
+
+.mlcard:hover{
+  transform:translateY(-4px);
+  box-shadow:
+  0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* IMAGE */
+
+.mlimg{
+  width:180px;
+  height:120px;
+  object-fit:cover;
+  border-radius:18px;
+  flex-shrink:0;
+}
+
+/* INFO */
+
+.mlinfo{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.mlinfo h3{
+  font-size:24px;
+  font-weight:700;
+  color:#111827;
+  margin-bottom:6px;
+}
+
+.mlinfo p{
+  color:#6B7280;
+  font-size:15px;
+  margin-bottom:14px;
+}
+
+/* EXTRA INFO */
+
+.extra-learning-info{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.extra-learning-info p{
+  background:#F9FAFB;
+  padding:12px 14px;
+  border-radius:14px;
+  font-size:14px;
+  font-weight:500;
+  color:#374151;
+  margin:0;
+  border:1px solid #E5E7EB;
+}
+
+/* PROGRESS */
+
+.mlprogress{
+  width:100%;
+  height:10px;
+  background:#E5E7EB;
+  border-radius:30px;
+  overflow:hidden;
+  margin-bottom:14px;
+}
+
+.mlfill{
+  height:100%;
+  background:
+  linear-gradient(
+    90deg,
+    #22C55E,
+    #16A34A
+  );
+  border-radius:30px;
+  transition:0.4s;
+}
+
+/* BOTTOM */
+
+.mlbottom{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:6px;
+}
+
+.mlbottom span{
+  color:#6B7280;
+  font-size:14px;
+  font-weight:500;
+}
+
+.mlbottom strong{
+  color:#111827;
+  font-size:18px;
+}
+
+/* PLAY BUTTON */
+
+.playbtn{
+  width:60px;
+  height:60px;
+  border:none;
+  border-radius:50%;
+  background:
+  linear-gradient(
+    135deg,
+    #4F46E5,
+    #4338CA
+  );
+  color:white;
+  font-size:22px;
+  font-weight:700;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:0.3s;
+  box-shadow:
+  0 4px 14px rgba(79,70,229,0.3);
+}
+
+.playbtn:hover{
+  transform:scale(1.08);
+}
+
+/* COMPLETED COURSE */
+
+.mlcard.completed{
+  border:2px solid #22C55E;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+  .mlcard{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .mlimg{
+    width:100%;
+    height:220px;
+  }
+
+  .playbtn{
+    width:50px;
+    height:50px;
+    font-size:18px;
+  }
+
+}
+
+@media(max-width:600px){
+
+  .mlinfo h3{
+    font-size:20px;
+  }
+
+  .extra-learning-info{
+    grid-template-columns:1fr;
+  }
+
+  .mlbottom{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
+
+}

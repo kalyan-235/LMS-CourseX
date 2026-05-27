@@ -1,0 +1,303 @@
+/* ADMIN */
+
+.admin-page{
+  width:100%;
+}
+
+.admin-title{
+  font-size:34px;
+  margin-bottom:30px;
+}
+
+.admin-stats{
+  display:grid;
+  grid-template-columns:
+  repeat(4,1fr);
+
+  gap:20px;
+}
+
+.admin-card{
+  background:white;
+  padding:30px;
+  border-radius:18px;
+  box-shadow:
+  0 4px 12px rgba(0,0,0,0.05);
+}
+
+.admin-card h2{
+  font-size:34px;
+  margin-bottom:10px;
+}
+
+.manage-page{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+}
+
+.course-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:25px;
+}
+
+.course-table th,
+.course-table td{
+  padding:16px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+}
+
+.table-img{
+  width:80px;
+  height:50px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+.edit-btn{
+  border:none;
+  background:#4F46E5;
+  color:white;
+  padding:10px 16px;
+  border-radius:10px;
+  margin-right:10px;
+  cursor:pointer;
+}
+
+.delete-btn{
+  border:none;
+  background:#EF4444;
+  color:white;
+  padding:10px 16px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.course-form{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  margin-top:25px;
+}
+
+.course-form input{
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
+
+.course-form button{
+  border:none;
+  background:#4F46E5;
+  color:white;
+  padding:14px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.admin-sidebar{
+  width:240px;
+  min-height:100vh;
+  background:white;
+  padding:25px;
+  border-right:1px solid #eee;
+}
+
+.admin-sidebar a{
+  display:block;
+  margin-top:18px;
+  text-decoration:none;
+  color:#111827;
+  font-weight:600;
+}
+
+.admin-layout{
+  display:flex;
+  min-height:100vh;
+  background:#f5f7fb;
+}
+
+.admin-sidebar{
+  width:240px;
+  background:white;
+  padding:25px;
+  border-right:1px solid #eee;
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+}
+
+.admin-logo{
+  margin-bottom:30px;
+  color:#4F46E5;
+}
+
+.admin-sidebar a{
+  display:block;
+  text-decoration:none;
+  margin-bottom:16px;
+  color:#111827;
+  font-weight:600;
+}
+
+.admin-main{
+  margin-left:240px;
+  width:100%;
+}
+
+.admin-topbar{
+  height:70px;
+  background:white;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 25px;
+  border-bottom:1px solid #eee;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.admin-topbar input{
+  width:300px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
+
+.admin-user{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#4F46E5;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.admin-content{
+  padding:30px;
+}
+
+.page-title{
+  font-size:32px;
+  margin-bottom:25px;
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+}
+
+.stats-card{
+  background:white;
+  padding:25px;
+  border-radius:18px;
+  display:flex;
+  gap:18px;
+  align-items:center;
+}
+
+.stats-icon{
+  width:60px;
+  height:60px;
+  background:#EEF2FF;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+}
+
+.course-table{
+  width:100%;
+  background:white;
+  border-radius:20px;
+  overflow:hidden;
+  border-collapse:collapse;
+}
+
+.course-table th,
+.course-table td{
+  padding:18px;
+  border-bottom:1px solid #eee;
+}
+
+.table-img{
+  width:80px;
+  height:55px;
+  border-radius:10px;
+  object-fit:cover;
+}
+
+.edit-btn{
+  border:none;
+  background:#4F46E5;
+  color:white;
+  padding:10px 16px;
+  border-radius:10px;
+  margin-right:10px;
+  cursor:pointer;
+}
+
+.delete-btn{
+  border:none;
+  background:#EF4444;
+  color:white;
+  padding:10px 16px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.course-form{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.course-form input{
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
+
+.course-form button{
+  border:none;
+  background:#4F46E5;
+  color:white;
+  padding:14px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.students-box{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.student-card{
+  background:white;
+  padding:22px;
+  border-radius:18px;
+}
+
+.analytics-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:20px;
+}
+
+.analytics-card{
+  background:white;
+  padding:30px;
+  border-radius:20px;
+}

@@ -1,0 +1,219 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+:root {
+  --bg-1: #07111f;
+  --bg-2: #0b1728;
+  --bg-3: #101b31;
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-strong: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --text: #f3f7ff;
+  --muted: #b6c3d8;
+  --primary: #4f8cff;
+  --primary-2: #7c5cff;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.18);
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --transition: all 0.25s ease;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(79, 140, 255, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(124, 92, 255, 0.14), transparent 24%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 40%, var(--bg-3) 100%);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* =========================
+   GLASS BASE
+========================= */
+.card,
+.admin-card,
+.auth-card,
+.details-right,
+.player-main,
+.player-sidebar,
+.course-table-wrap,
+.signup-form,
+.details-image,
+.lesson-item {
+  background: var(--glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow);
+}
+
+/* =========================
+   NAVBAR
+========================= */
+.Navbar-container,
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 28px;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: rgba(9, 17, 31, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+}
+
+.Navbar-container h2,
+.logo {
+  font-size: 26px;
+  font-weight: 800;
+  color: #8db7ff;
+  letter-spacing: 0.4px;
+}
+
+.Navbar-links,
+.nav-links,
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.Navbar-links a,
+.nav-links a {
+  color: var(--text);
+  padding: 10px 15px;
+  border-radius: 12px;
+  transition: var(--transition);
+  font-weight: 600;
+}
+
+.Navbar-links a:hover,
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cfe0ff;
+}
+
+.navbar-Login {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.username,
+.welcome {
+  color: #dce8ff;
+  font-weight: 700;
+}
+
+.navbar-Login a {
+  padding: 10px 15px;
+  border-radius: 12px;
+  transition: var(--transition);
+}
+
+.navbar-Login a:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-Login button {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 12px;
+  transition: var(--transition);
+}
+
+.navbar-Login button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* =========================
+   CARD DESIGN
+========================= */
+
+  .course-card{
+    margin-top: 20px;
+    margin-left: 30px;
+    width:340px;
+    background:white;
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 8px 25px rgba(0,0,0,0.12);
+    transition:0.3s;
+  }
+
+    .course-card:hover{
+      transform:translateY(-8px);
+    }
+
+    /* IMAGE */
+    .course-image img{
+      width:100%;
+      height:150px;
+      object-fit:cover;
+    }
+
+    /* CONTENT */
+    .course-content{
+      padding:15px;
+    }
+
+    .course-title{
+      font-size:17px;
+      font-weight:bold;
+      color:#111827;
+      margin-bottom:10px;
+    }
+
+    .course-instructor{
+      color:#6b7280;
+      font-size:medium;
+      line-height:1.2;
+      margin-bottom:10px;
+    }
+
+    /* FOOTER */
+    .course-footer{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .price{
+      font-size:18px;
+      color:#10b981;
+      font-weight:bold;
+    }
+
+    .rating{
+      color:rgb(241, 158, 15);
+      font-size:13px;
+
+    }

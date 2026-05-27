@@ -1,0 +1,141 @@
+
+.admin-settings-page{
+  padding:30px;
+}
+
+.settings-header{
+  margin-bottom:30px;
+}
+
+.settings-header h1{
+  font-size:34px;
+  font-weight:700;
+  color:#111827;
+}
+
+.settings-header p{
+  color:#6b7280;
+  margin-top:6px;
+}
+
+.settings-container{
+  background:white;
+  padding:30px;
+  border-radius:24px;
+  box-shadow:
+  0 4px 20px rgba(0,0,0,0.05);
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+}
+
+.setting-group{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.setting-group label{
+  font-weight:600;
+  color:#374151;
+}
+
+.setting-group input,
+.setting-group select{
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #d1d5db;
+  font-size:15px;
+  outline:none;
+}
+
+.setting-group input:focus,
+.setting-group select:focus{
+  border-color:#4f46e5;
+}
+
+.setting-toggle{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px;
+  background:#f9fafb;
+  border-radius:18px;
+}
+
+.setting-toggle h3{
+  font-size:18px;
+  color:#111827;
+}
+
+.setting-toggle p{
+  color:#6b7280;
+  margin-top:4px;
+}
+
+.switch{
+  position:relative;
+  width:60px;
+  height:30px;
+}
+
+.switch input{
+  opacity:0;
+  width:0;
+  height:0;
+}
+
+.slider{
+  position:absolute;
+  cursor:pointer;
+  inset:0;
+  background:#d1d5db;
+  border-radius:30px;
+  transition:0.3s;
+}
+
+.slider::before{
+  content:"";
+  position:absolute;
+  width:24px;
+  height:24px;
+  left:3px;
+  top:3px;
+  background:white;
+  border-radius:50%;
+  transition:0.3s;
+}
+
+.switch input:checked + .slider{
+  background:#4f46e5;
+}
+
+.switch input:checked + .slider::before{
+  transform:translateX(30px);
+}
+
+.save-settings-btn{
+  padding:16px;
+  border:none;
+  border-radius:16px;
+  background:#4f46e5;
+  color:white;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.save-settings-btn:hover{
+  background:#4338ca;
+}
+
+@media(max-width:768px){
+
+  .setting-toggle{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:20px;
+  }
+
+}

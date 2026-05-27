@@ -1,0 +1,221 @@
+/* =========================
+   CURRICULUM MODEL CSS
+========================= */
+
+.curriculum-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999;
+  padding: 20px;
+}
+
+.curriculum-modal {
+  background: #fff;
+  width: 100%;
+  max-width: 700px;
+  border-radius: 18px;
+  overflow: hidden;
+  animation: popup 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+@keyframes popup {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* HEADER */
+
+.curriculum-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 20px 25px;
+  border-bottom: 1px solid #eee;
+}
+
+.curriculum-header h2 {
+  font-size: 24px;
+  color: #222;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #666;
+  transition: 0.3s;
+}
+
+.close-btn:hover {
+  color: red;
+}
+
+/* BODY */
+
+.curriculum-body {
+  padding: 25px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* SECTION */
+
+.curriculum-section {
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.section-header {
+  background: #f7f7f7;
+  padding: 15px 18px;
+  font-weight: 600;
+  font-size: 18px;
+  color: #333;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.section-header:hover {
+  background: #ececec;
+}
+
+.section-content {
+  padding: 15px 20px;
+  background: #fff;
+}
+
+/* LESSON */
+
+.lesson-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.lesson-item:last-child {
+  border-bottom: none;
+}
+
+.lesson-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lesson-icon {
+  width: 35px;
+  height: 35px;
+  background: #4f46e5;
+  color: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+.lesson-title {
+  font-size: 16px;
+  color: #333;
+}
+
+.lesson-duration {
+  font-size: 14px;
+  color: #777;
+}
+
+/* FOOTER */
+
+.curriculum-footer {
+  padding: 20px 25px;
+  border-top: 1px solid #eee;
+
+  display: flex;
+  justify-content: flex-end;
+}
+
+.start-btn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.start-btn:hover {
+  background: #4338ca;
+}
+
+/* SCROLLBAR */
+
+.curriculum-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.curriculum-body::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 10px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .curriculum-modal {
+    max-width: 95%;
+  }
+
+  .curriculum-header h2 {
+    font-size: 20px;
+  }
+
+  .section-header {
+    font-size: 16px;
+  }
+
+  .lesson-title {
+    font-size: 14px;
+  }
+
+  .start-btn {
+    width: 100%;
+  }
+
+  .curriculum-footer {
+    justify-content: center;
+  }
+}

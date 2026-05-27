@@ -1,0 +1,97 @@
+/* =========================
+   TOPBAR
+========================= */
+.topbar{
+  position:fixed;
+  top:0;
+  left:240px;
+
+  width:calc(100% - 240px);
+  height:85px;
+
+  background:#ffffff;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 28px;
+
+  border-bottom:1px solid #e5e7eb;
+
+  z-index:1000;
+}
+
+.sbar{
+  flex:1;
+  max-width:500px;
+}
+
+.sbar input{
+  width:100%;
+  height:48px;
+
+  border:none;
+  outline:none;
+
+  background:#f3f4f6;
+
+  border-radius:14px;
+
+  padding:0 18px;
+
+  font-size:15px;
+}
+
+.top-right{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+.notif{
+  width:42px;
+  height:42px;
+
+  border-radius:50%;
+
+  background:#f3f4f6;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+}
+
+.av{
+  width:46px;
+  height:46px;
+
+  border-radius:50%;
+
+  background:#4F46E5;
+  color:white;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-weight:700;
+  font-size:18px;
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+  .topbar{
+    left:0;
+    width:100%;
+    padding:0 16px;
+  }
+
+  .sbar{
+    max-width:100%;
+  }
+}

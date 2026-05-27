@@ -1,0 +1,42 @@
+.quiz-box{
+  margin-top:30px;
+  padding:25px;
+  background:#fff;
+  border-radius:16px;
+}
+
+.quiz-heading{
+  font-size:28px;
+  margin-bottom:20px;
+}
+
+.quiz-question{
+  font-size:22px;
+  margin-bottom:20px;
+}
+
+.quiz-options{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.quiz-btn{
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#4F46E5;
+  color:white;
+  cursor:pointer;
+  font-size:16px;
+  transition:0.3s;
+}
+
+.quiz-btn:hover{
+  background:#3730A3;
+}
+
+.quiz-result{
+  text-align:center;
+  padding:30px;
+}

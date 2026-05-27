@@ -1,0 +1,152 @@
+
+.admin-certificate-page{
+  padding:30px;
+}
+
+.certificate-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:30px;
+}
+
+.certificate-top h1{
+  font-size:34px;
+  font-weight:700;
+  color:#111827;
+}
+
+.certificate-top p{
+  color:#6b7280;
+  margin-top:6px;
+}
+
+.issue-btn{
+  padding:14px 24px;
+  border:none;
+  border-radius:14px;
+  background:#4f46e5;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.issue-btn:hover{
+  background:#4338ca;
+}
+
+.certificate-grid{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(300px,1fr));
+  gap:24px;
+}
+
+.certificate-card{
+  background:white;
+  padding:26px;
+  border-radius:24px;
+  box-shadow:
+  0 4px 20px rgba(0,0,0,0.05);
+  transition:0.3s;
+}
+
+.certificate-card:hover{
+  transform:translateY(-5px);
+}
+
+.certificate-icon{
+  width:70px;
+  height:70px;
+  border-radius:18px;
+  background:#eef2ff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:34px;
+  margin-bottom:20px;
+}
+
+.certificate-card h2{
+  font-size:26px;
+  color:#111827;
+  margin-bottom:10px;
+}
+
+.certificate-course{
+  color:#6b7280;
+  margin-bottom:20px;
+}
+
+.certificate-info{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:18px;
+  font-size:15px;
+}
+
+.certificate-status{
+  width:max-content;
+  padding:8px 16px;
+  border-radius:30px;
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:22px;
+}
+
+.certificate-status.issued{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.certificate-status.pending{
+  background:#fef3c7;
+  color:#92400e;
+}
+
+.certificate-actions{
+  display:flex;
+  gap:14px;
+}
+
+.download-btn{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#10b981;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.delete-certificate-btn{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#ef4444;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.download-btn:hover{
+  background:#059669;
+}
+
+.delete-certificate-btn:hover{
+  background:#dc2626;
+}
+
+@media(max-width:768px){
+
+  .certificate-top{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:16px;
+  }
+
+}
+
