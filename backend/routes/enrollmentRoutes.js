@@ -10,6 +10,10 @@ import {
   verifyToken,
 } from "../middlewares/authMiddleware.js";
 
+import {
+  submitQuiz,
+} from "../controllers/enrollmentController.js";
+
 const router =
   express.Router();
 
@@ -30,5 +34,12 @@ router.put(
   verifyToken,
   updateProgress
 );
+
+router.put(
+  "/quiz/:id",
+  verifyToken,
+  submitQuiz
+);
+
 
 export default router;

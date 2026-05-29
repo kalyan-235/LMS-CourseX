@@ -39,6 +39,68 @@ export default function Quiz({
 
     }
   };
+  const handleSubmitQuiz =async () => {
+
+    let score = 0;
+
+    quiz.forEach((q,index) => {
+
+      if (
+        answers[index] ===
+        q.answer
+      ) {
+
+        score += 10;
+
+      }
+
+    });
+
+    setQuizScore(score);
+
+    try {
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+      await API.put(
+
+        `/enrollment/quiz/${enrollmentId}`,
+
+        { score },
+
+        {
+          headers:{
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+
+      );
+
+      if (score >= 70) {
+
+        alert(
+          "Quiz Passed 🎉"
+        );
+
+      } else {
+
+        alert(
+          "Quiz Failed"
+        );
+
+      }
+
+    } catch (err) {
+
+      console.log(err);
+
+    }
+
+  };
 
   return (
 

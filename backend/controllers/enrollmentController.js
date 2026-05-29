@@ -1,111 +1,133 @@
-import Enrollment from "../models/Enrollment.js";
-import Course from "../models/Course.js";
 
+import Enrollment
+from "../models/Enrollment.js";
+
+import Course
+from "../models/Course.js";
 
 // ENROLL COURSE
 
 export const enrollCourse =
-async (req, res) => {
+async (req,res) => {
 
   try {
-
-    const userId =
-      req.user.id;
 
     const { courseId } =
       req.body;
 
+    const userId =
+      req.user.id;
+
+    // CHECK COURSE
+
     const course =
-      await Course.findById(courseId);
+      await Course.findById(
+        courseId
+      );
 
     if (!course) {
 
-      return res.status(404).json({
-        message: "Course not found",
+      return res.status(404)
+      .json({
+        message:
+          "Course not found",
       });
+
     }
+
+    // CHECK ALREADY ENROLLED
 
     const alreadyEnrolled =
       await Enrollment.findOne({
-        user: userId,
-        course: courseId,
+
+        userId,
+        courseId,
+
       });
 
     if (alreadyEnrolled) {
 
-      return res.status(400).json({
-        message: "Already enrolled",
+      return res.status(400)
+      .json({
+        message:
+          "Already enrolled",
       });
+
     }
 
+    // CREATE ENROLLMENT
+
     const enrollment =
-      new Enrollment({
+      await Enrollment.create({
 
-        user: userId,
+        userId,
+        courseId,
 
-        course: courseId,
-
-        progress: 0,
-
-        watchedHours: 0,
-
-        completed: false,
-
-        lastOpened:
-          new Date().toDateString(),
       });
-
-    await enrollment.save();
 
     res.status(201).json({
 
       message:
-        "Course enrolled successfully",
+        "Enrollment successful",
 
       enrollment,
+
     });
 
   } catch (err) {
 
-    res.status(500).json({
-      message: err.message,
-    });
-  }
-};
+    console.log(err);
 
+    res.status(500).json({
+
+      message:
+        "Enrollment failed",
+
+    });
+
+  }
+
+};
 
 // GET MY COURSES
 
 export const getMyCourses =
-async (req, res) => {
+async (req,res) => {
 
   try {
 
     const userId =
       req.user.id;
 
-    const courses =
+    const enrollments =
       await Enrollment.find({
 
-        user: userId,
+        userId,
 
-      }).populate("course");
+      }).populate("courseId");
 
-    res.status(200).json(courses);
+    res.status(200).json(
+      enrollments
+    );
 
   } catch (err) {
 
-    res.status(500).json({
-      message: err.message,
-    });
-  }
-};
+    console.log(err);
 
+    res.status(500).json({
+
+      message:
+        "Failed to fetch courses",
+
+    });
+
+  }
+
+};
 
 // UPDATE PROGRESS
 
-export const updateProgress =
-async (req, res) => {
+export const updateProgress = async (req,res) => {
 
   try {
 
@@ -124,9 +146,12 @@ async (req, res) => {
 
     if (!enrollment) {
 
-      return res.status(404).json({
-        message: "Enrollment not found",
+      return res.status(404)
+      .json({
+        message:
+          "Enrollment not found",
       });
+
     }
 
     enrollment.progress =
@@ -135,14 +160,11 @@ async (req, res) => {
     enrollment.watchedHours =
       watchedHours;
 
+    enrollment.completed =
+      progress === 100;
+
     enrollment.lastOpened =
       new Date().toDateString();
-
-    if (progress >= 100) {
-
-      enrollment.completed =
-        true;
-    }
 
     await enrollment.save();
 
@@ -152,12 +174,88 @@ async (req, res) => {
         "Progress updated",
 
       enrollment,
+
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.status(500).json({
+
+      message:
+        "Progress update failed",
+
+    });
+
+  }
+
+};
+
+export const submitQuiz =async (req,res) => {
+
+  try {
+
+    const { score } =
+      req.body;
+
+    const enrollment =
+      await Enrollment.findById(
+        req.params.id
+      );
+
+    if (!enrollment) {
+
+      return res
+      .status(404)
+      .json({
+        message:
+          "Enrollment not found",
+      });
+
+    }
+
+    // PASS MARK
+
+    const passed =
+      score >= 70;
+
+    enrollment.quizScore =
+      score;
+
+    enrollment.quizPassed =
+      passed;
+
+    // COMPLETE COURSE
+
+    if (passed) {
+
+      enrollment.progress = 100;
+
+      enrollment.completed = true;
+
+    }
+
+    await enrollment.save();
+
+    res.status(200).json({
+
+      message:
+        passed
+          ? "Quiz Passed"
+          : "Quiz Failed",
+
+      enrollment,
+
     });
 
   } catch (err) {
 
     res.status(500).json({
-      message: err.message,
+      message:
+        err.message,
     });
+
   }
+
 };

@@ -24,6 +24,10 @@ export default function CourseDetail() {
   const [course, setCourse] =
     useState(null);
 
+
+  const [enrollmentData, setEnrollmentData] =
+    useState(null);
+
   const [loading, setLoading] =
     useState(true);
 
@@ -104,6 +108,7 @@ export default function CourseDetail() {
       if (enrolled) {
 
         setIsEnrolled(true);
+        setEnrollmentData( enrolled );
 
       }
 
@@ -167,22 +172,78 @@ export default function CourseDetail() {
     }
 
   };
-  // VIDEO OPEN
 
-  const handleVideoOpen = () => {
+  const updateCourseProgress =async () => {
 
-    if (!isEnrolled) {
+    try {
 
-      alert(
-        "Please enroll to access videos"
+      if (!enrollmentData) return;
+
+      const token =
+        localStorage.getItem("token");
+
+      let newProgress =
+        enrollmentData.progress + 10;
+
+      // MAX 100
+
+      if (newProgress > 100) {
+
+        newProgress = 100;
+
+      }
+
+      await API.put(
+
+        `/enrollment/progress/${enrollmentData._id}`,
+
+        {
+          progress:newProgress,
+
+          watchedHours:
+            enrollmentData.watchedHours + 1,
+        },
+
+        {
+          headers:{
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+
       );
 
-      return;
+    } catch (err) {
+
+      console.log(err);
+
     }
 
-    setOpen(true);
-
   };
+
+  // VIDEO OPEN
+
+const handleVideoOpen = async () => {
+
+  if (!isEnrolled) {
+
+    alert(
+      "Please enroll to access videos"
+    );
+
+    return;
+
+  }
+
+  setOpen(true);
+
+  // UPDATE PROGRESS
+
+  await updateCourseProgress();
+
+};
+
+
 
   // PDF OPEN
 
@@ -519,8 +580,10 @@ export default function CourseDetail() {
 
               <Quiz
                 quiz={course.quiz}
+                enrollmentId={
+                  enrollmentData?._id
+                }
               />
-
             )}
 
           </div>

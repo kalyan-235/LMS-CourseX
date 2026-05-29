@@ -1,50 +1,103 @@
-// src/pages/MyLearning.jsx
+import {
+  useEffect,
+  useState,
+} from "react";
 
-import { useState } from "react";
+import {
+  Link,
+} from "react-router-dom";
 
-import { Link } from "react-router-dom";
-
-import LearningChart from "../components/LearningChart";
-import AchievementBadges from "../components/AchievementBadges";
-import Certificate from "../components/Certificate";
-
-import { database } from "../data/courses";
+import API from "../api/axios";
 
 export default function MyLearning() {
 
+  const [courses, setCourses] =
+    useState([]);
+
   const [activeTab, setActiveTab] =
-    useState("progress");
+    useState("all");
 
-  // IN PROGRESS
+  const [loading, setLoading] =
+    useState(true);
 
-  const inProgressCourses =
-    database.filter(
-      (course) => course.progress < 100
-    );
+  useEffect(() => {
 
-  // COMPLETED
+    fetchMyCourses();
 
-  const completedCourses =
-    database.filter(
-      (course) => course.progress === 100
-    );
+  }, []);
 
-  // SHOW COURSES
+  // FETCH ENROLLED COURSES
 
-  const showCourses =
-    activeTab === "progress"
-      ? inProgressCourses
-      : completedCourses;
+  const fetchMyCourses =
+    async () => {
 
-  // STREAK
+    try {
 
-  const streak =
-    localStorage.getItem("streak") || 0;
+      const token =
+        localStorage.getItem(
+          "token"
+        );
 
-  // HOURS
+      const res =
+        await API.get(
 
-  const learnedHours =
-    localStorage.getItem("hours") || 0;
+          "/enrollment/my-courses",
+
+          {
+            headers:{
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+
+        );
+
+      setCourses(res.data);
+
+    } catch (err) {
+
+      console.log(err);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  // FILTER COURSES
+
+  const filteredCourses =
+    courses.filter((item) => {
+
+      if (
+        activeTab === "completed"
+      ) {
+
+        return item.completed;
+
+      }
+
+      if (
+        activeTab === "progress"
+      ) {
+
+        return !item.completed;
+
+      }
+
+      return true;
+
+    });
+
+  if (loading) {
+
+    return <h2>
+      Loading...
+    </h2>;
+
+  }
 
   return (
 
@@ -59,7 +112,8 @@ export default function MyLearning() {
         </h1>
 
         <p>
-          Track your course progress
+          Track your enrolled
+          courses and progress
         </p>
 
       </div>
@@ -70,44 +124,46 @@ export default function MyLearning() {
 
         <div className="mlstat blue">
 
-          <div className="sicon">
-            🔥
-          </div>
-
           <h2>
-            {streak}
+            {courses.length}
           </h2>
 
           <span>
-            Day Streak
+            Total Courses
           </span>
 
         </div>
 
         <div className="mlstat orange">
 
-          <div className="sicon">
-            ⏱
-          </div>
-
           <h2>
-            {learnedHours}h
+
+            {
+              courses.filter(
+                (item) =>
+                  !item.completed
+              ).length
+            }
+
           </h2>
 
           <span>
-            Hours Learned
+            In Progress
           </span>
 
         </div>
 
         <div className="mlstat green">
 
-          <div className="sicon">
-            🎓
-          </div>
-
           <h2>
-            {completedCourses.length}
+
+            {
+              courses.filter(
+                (item) =>
+                  item.completed
+              ).length
+            }
+
           </h2>
 
           <span>
@@ -118,17 +174,22 @@ export default function MyLearning() {
 
       </div>
 
-      {/* LEARNING CHART */}
-
-      <LearningChart />
-
-      {/* BADGES */}
-
-      <AchievementBadges />
-
       {/* TABS */}
 
       <div className="mltabs">
+
+        <button
+          className={`mltab ${
+            activeTab === "all"
+              ? "active"
+              : ""
+          }`}
+          onClick={() =>
+            setActiveTab("all")
+          }
+        >
+          All Courses
+        </button>
 
         <button
           className={`mltab ${
@@ -137,13 +198,12 @@ export default function MyLearning() {
               : ""
           }`}
           onClick={() =>
-            setActiveTab("progress")
+            setActiveTab(
+              "progress"
+            )
           }
         >
-
           In Progress
-          ({inProgressCourses.length})
-
         </button>
 
         <button
@@ -153,13 +213,12 @@ export default function MyLearning() {
               : ""
           }`}
           onClick={() =>
-            setActiveTab("completed")
+            setActiveTab(
+              "completed"
+            )
           }
         >
-
           Completed
-          ({completedCourses.length})
-
         </button>
 
       </div>
@@ -168,131 +227,156 @@ export default function MyLearning() {
 
       <div className="mllist">
 
-        {showCourses.map((course) => (
+        {filteredCourses.map(
+          (item) => {
 
-          <div
-            key={course.id}
-            className="course-wrapper"
-          >
+          const course =
+            item.courseId;
 
-            {/* COURSE CARD */}
+          return (
 
-            <Link
-              to={`/course/${course.id}`}
-              className="mlcard"
+            <div
+              key={item._id}
+              className="course-wrapper"
             >
 
-              {/* IMAGE */}
+              <Link
 
-              <img
-                src={course.image}
-                alt={course.title}
-                className="mlimg"
-              />
+                to={`/course/${course._id}`}
 
-              {/* INFO */}
+                className="mlcard"
 
-              <div className="mlinfo">
+              >
 
-                <h3>
-                  {course.title}
-                </h3>
+                {/* IMAGE */}
 
-                <p>
-                  {course.author}
-                </p>
+                <img
+                  src={course.image}
+                  alt={course.title}
+                  className="mlimg"
+                />
 
-                {/* EXTRA INFO */}
+                {/* INFO */}
 
-                <div className="extra-learning-info">
+                <div className="mlinfo">
 
-                  <p>
-                    Total Hours:
-                    {course.totalHours}h
-                  </p>
+                  <h3>
+                    {course.title}
+                  </h3>
 
                   <p>
-                    Watched:
-                    {course.watchedHours}h
+                    {course.author}
                   </p>
 
-                  <p>
-                    Remaining:
-                    {course.totalHours - course.watchedHours}h
-                  </p>
+                  {/* EXTRA */}
 
-                  <p>
-                    Last Opened:
-                    {course.lastOpened}
-                  </p>
+                  <div className="extra-learning-info">
+
+                    <p>
+
+                      Total Hours:
+                      {
+                        course.totalHours || 20
+                      }h
+
+                    </p>
+
+                    <p>
+
+                      Watched:
+                      {
+                        item.watchedHours
+                      }h
+
+                    </p>
+
+                    <p>
+
+                      Remaining:
+
+                      {
+                        (
+                          course.totalHours || 20
+                        ) -
+                        item.watchedHours
+                      }h
+
+                    </p>
+
+                    <p>
+
+                      Last Opened:
+                      {
+                        item.lastOpened ||
+                        "Not Opened"
+                      }
+
+                    </p>
+
+                  </div>
+
+                  {/* PROGRESS */}
+
+                  <div className="mlprogress">
+
+                    <div
+                      className="mlfill"
+                      style={{
+                        width:
+                          `${item.progress}%`,
+                      }}
+                    ></div>
+
+                  </div>
+
+                  {/* BOTTOM */}
+
+                  <div className="mlbottom">
+
+                    <span>
+
+                      {item.completed
+
+                        ? "Course Completed"
+
+                        : `Resume Learning · ${item.progress}%`
+
+                      }
+
+                    </span>
+
+                    <strong>
+
+                      {item.progress}%
+
+                    </strong>
+
+                  </div>
 
                 </div>
 
-                {/* PROGRESS */}
+                {/* PLAY */}
 
-                <div className="mlprogress">
+                <button className="playbtn">
 
-                  <div
-                    className="mlfill"
-                    style={{
-                      width:
-                      `${course.progress}%`,
-                    }}
-                  ></div>
+                  {item.completed
+                    ? "✓"
+                    : "▶"}
 
-                </div>
+                </button>
 
-                {/* BOTTOM */}
+              </Link>
 
-                <div className="mlbottom">
+            </div>
 
-                  <span>
+          );
 
-                    {course.progress === 100
-                      ? "Course Completed"
-                      : `Resume Learning · ${course.progress}%`
-                    }
-
-                  </span>
-
-                  <strong>
-                    {course.progress}%
-                  </strong>
-
-                </div>
-
-              </div>
-
-              {/* PLAY BUTTON */}
-
-              <button className="playbtn">
-
-                {course.progress === 100
-                  ? "✓"
-                  : "▶"}
-
-              </button>
-
-            </Link>
-
-            {/* CERTIFICATE */}
-
-            {course.progress === 100 && (
-
-              <Certificate
-                userName="Kalyan"
-                course={course}
-              />
-
-            )}
-
-          </div>
-
-        ))}
+        })}
 
       </div>
 
     </div>
 
   );
+
 }

@@ -4,42 +4,57 @@ const enrollmentSchema =
 new mongoose.Schema(
 
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+
+    userId:{
+      type:
+        mongoose.Schema.Types.ObjectId,
+      ref:"User",
+      required:true,
     },
 
-    course: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Course",
-      required: true,
+    courseId:{
+      type:
+        mongoose.Schema.Types.ObjectId,
+      ref:"Course",
+      required:true,
     },
 
-    progress: {
-      type: Number,
-      default: 0,
+    progress:{
+      type:Number,
+      default:0,
     },
 
-    watchedHours: {
-      type: Number,
-      default: 0,
+    completed:{
+      type:Boolean,
+      default:false,
     },
 
-    completed: {
-      type: Boolean,
-      default: false,
+    watchedHours:{
+      type:Number,
+      default:0,
     },
 
-    lastOpened: {
-      type: String,
-      default: "",
+    lastOpened:{
+      type:String,
+      default:"",
     },
+
+    quizScore:{
+      type:Number,
+      default:0,
+    },
+    
+    quizPassed:{
+      type:Boolean,
+      default:false,
+    },
+
   },
 
   {
-    timestamps: true,
+    timestamps:true,
   }
+
 );
 
 const Enrollment =
