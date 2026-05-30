@@ -22,66 +22,61 @@ export default function Login() {
     useState(false);
 
   // LOGIN
+const handleLogin = async (e) => {
 
-  const handleLogin =
-    async (e) => {
+  e.preventDefault();
 
-      e.preventDefault();
+  try {
 
-      setError("");
-
-      try {
-
-        setLoading(true);
-
-        const response =
-          await API.post(
-            "/auth/login",
-            {
-              email,
-              password,
-            }
-          );
-
-        // SAVE TOKEN
-
-        localStorage.setItem(
-          "token",
-          response.data.token
-        );
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify(
-            response.data.user
-          )
-        );
-
-        // ADMIN CHECK
-
-        if (
-          response.data.user.isAdmin
-        ) {
-
-          navigate("/admin");
-
-        } else {
-
-          navigate("/mylearning");
+    const res =
+      await API.post(
+        "/auth/login",
+        {
+          email,
+          password,
         }
+      );
 
-      } catch (error) {
+    localStorage.setItem(
+      "token",
+      res.data.token
+    );
 
-        setError(
-          error.response?.data?.message ||
-          "Login Failed"
-        );
+    localStorage.setItem(
+      "user",
+      JSON.stringify(
+        res.data.user
+      )
+    );
 
-      } finally {
+    if (
+      res.data.user.isAdmin
+    ) {
 
-        setLoading(false);
-      }
-    };
+      navigate("/admin");
+
+    } else {
+
+      navigate("/mylearning");
+
+    }
+
+  } catch (err) {
+    if (
+  err.response?.status === 401
+) {
+
+  navigate("/login");
+
+}
+
+    setError(
+      err.response?.data?.message
+    );
+
+  }
+
+};
 
   return (
 

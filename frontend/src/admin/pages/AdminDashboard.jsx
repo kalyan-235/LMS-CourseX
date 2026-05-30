@@ -1,235 +1,180 @@
-import { BarChart3 } from "lucide-react";
+
+import { useEffect, useState } from "react";
+
+import API from "../../api/axios";
 
 import AdminLayout from "../layouts/AdminLayout";
 
 export default function AdminDashboard() {
 
-  const analytics = [
+  const [data, setData] =
+    useState(null);
 
-    {
-      id:1,
-      title:"Total Students",
-      value:"1,245",
-      growth:"+12%",
-      icon:"👨‍🎓",
-    },
+  const [loading, setLoading] =
+    useState(true);
 
-    {
-      id:2,
-      title:"Total Courses",
-      value:"48",
-      growth:"+5%",
-      icon:"📚",
-    },
+  useEffect(() => {
 
-    {
-      id:3,
-      title:"Revenue",
-      value:"₹2.4L",
-      growth:"+18%",
-      icon:"💰",
-    },
+    fetchAnalytics();
 
-    {
-      id:4,
-      title:"Certificates",
-      value:"320",
-      growth:"+9%",
-      icon:"🏆",
-    },
+  }, []);
 
-  ];
+  const fetchAnalytics =
+  async () => {
 
-  const activities = [
+    try {
 
-    "Kalyan completed React Frontend Mastery",
+      const token =
+        localStorage.getItem(
+          "token"
+        );
 
-    "Ajay enrolled in MongoDB Course",
+      const res =
+        await API.get(
+          "/admin/dashboard",
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
 
-    "Teja downloaded certificate",
+      setData(res.data);
 
-    "Ravi completed JavaScript Quiz",
+    } catch (err) {
 
-  ];
+      console.log(
+        "Analytics Error:",
+        err
+      );
 
-  const monthlyData = [
+    } finally {
 
-    {
-      month:"Jan",
-      value:40,
-    },
+      setLoading(false);
 
-    {
-      month:"Feb",
-      value:60,
-    },
+    }
 
-    {
-      month:"Mar",
-      value:75,
-    },
+  };
 
-    {
-      month:"Apr",
-      value:55,
-    },
+  if (loading) {
 
-    {
-      month:"May",
-      value:95,
-    },
+    return <h2>Loading...</h2>;
 
-    {
-      month:"Jun",
-      value:85,
-    },
+  }
 
-  ];
+  if (!data) {
+
+    return (
+      <h2>
+        Failed to load dashboard
+      </h2>
+    );
+
+  }
 
   return (
 
     <AdminLayout>
 
-      <div className="admin-dashboard-page">
+      <div className="admin-dashboard">
 
-        {/* HEADER */}
+        <h1>
+          LMS Analytics Dashboard
+        </h1>
 
-        <div className="admin-dashboard-header">
+        <div className="analytics-grid">
 
-          <div>
+          <div className="analytics-card">
 
-            <h1>
-              Admin Dashboard
-            </h1>
+            <h2>
+              {data.totalUsers}
+            </h2>
 
             <p>
-              LMS analytics and overview
+              Total Users
             </p>
 
           </div>
 
-          <div className="dashboard-icon">
+          <div className="analytics-card">
 
-            <BarChart3 size={34} />
+            <h2>
+              {data.totalCourses}
+            </h2>
+
+            <p>
+              Total Courses
+            </p>
+
+          </div>
+
+          <div className="analytics-card">
+
+            <h2>
+              {data.totalEnrollments}
+            </h2>
+
+            <p>
+              Total Enrollments
+            </p>
+
+          </div>
+
+          <div className="analytics-card">
+
+            <h2>
+              ₹{data.totalRevenue}
+            </h2>
+
+            <p>
+              Revenue
+            </p>
+
+          </div>
+
+          <div className="analytics-card">
+
+            <h2>
+              {data.completedCourses}
+            </h2>
+
+            <p>
+              Completed Courses
+            </p>
 
           </div>
 
         </div>
 
-        {/* STATS */}
+        {/* RECENT */}
 
-        <div className="analytics-grid">
+        <div className="recent-box">
 
-          {analytics.map((item) => (
+          <h2>
+            Recent Enrollments
+          </h2>
 
-            <div
-              className="analytics-card"
-              key={item.id}
-            >
+          {data.recentEnrollments?.map(
+            (item) => (
 
-              <div className="analytics-top">
+              <div
+                key={item._id}
+                className="recent-item"
+              >
 
-                <div className="analytics-icon">
+                <h4>
+                  {item.userId?.name}
+                </h4>
 
-                  {item.icon}
-
-                </div>
-
-                <span className="growth">
-
-                  {item.growth}
-
-                </span>
+                <p>
+                  {item.courseId?.title}
+                </p>
 
               </div>
 
-              <h2>
-                {item.value}
-              </h2>
-
-              <p>
-                {item.title}
-              </p>
-
-            </div>
-
-          ))}
-
-        </div>
-
-        {/* CHART SECTION */}
-
-        <div className="dashboard-middle">
-
-          {/* BAR CHART */}
-
-          <div className="chart-card">
-
-            <div className="chart-head">
-
-              <h2>
-                Monthly Enrollments
-              </h2>
-
-            </div>
-
-            <div className="bar-chart">
-
-              {monthlyData.map((item,index) => (
-
-                <div
-                  className="bar-item"
-                  key={index}
-                >
-
-                  <div
-                    className="bar-fill"
-                    style={{
-                      height:
-                      `${item.value}%`,
-                    }}
-                  ></div>
-
-                  <span>
-                    {item.month}
-                  </span>
-
-                </div>
-
-              ))}
-
-            </div>
-
-          </div>
-
-          {/* ACTIVITY */}
-
-          <div className="activity-card">
-
-            <h2>
-              Recent Activity
-            </h2>
-
-            <div className="activity-list">
-
-              {activities.map(
-                (activity,index) => (
-
-                  <div
-                    className="activity-item"
-                    key={index}
-                  >
-
-                    🔥 {activity}
-
-                  </div>
-
-                )
-              )}
-
-            </div>
-
-          </div>
+            )
+          )}
 
         </div>
 
@@ -238,4 +183,5 @@ export default function AdminDashboard() {
     </AdminLayout>
 
   );
+
 }
