@@ -29,7 +29,6 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://lms-course-ix4b11niq-kalyan-235s-projects.vercel.app",
       "https://lms-course-x-git-main-kalyan-235s-projects.vercel.app",
       "https://lms-course-x.vercel.app"
     ],
