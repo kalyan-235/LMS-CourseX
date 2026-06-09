@@ -14,6 +14,7 @@ import uploadRoutes from "./routes/uploadRoutes.js";
 import certificateRoutes from "./routes/certificateRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -39,6 +40,7 @@ app.use("/api/upload", uploadRoutes );
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/payments", paymentRoutes);
 
 
 app.get("/", (req, res) => {

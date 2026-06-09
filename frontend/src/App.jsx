@@ -18,12 +18,14 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import PaymentHistory from "./pages/PaymentHistory";
 
 import AdminDashboard from "./admin/pages/AdminDashboard";
 import AdminCourses from "./admin/pages/AdminCourses";
 import AdminStudents from "./admin/pages/AdminStudents";
 import AdminQuiz from "./admin/pages/AdminQuiz";
 import AdminCertificates from "./admin/pages/AdminCertificates";
+import AdminPayments from "./admin/pages/AdminPayments";
 import AdminSettings from "./admin/pages/AdminSettings";
 
 export default function App() {
@@ -128,6 +130,15 @@ return (
         />
 
         <Route
+          path="/admin/payments"
+          element={
+            <ProtectedRoute>
+              <AdminPayments />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/admin/settings"
           element={
             <ProtectedRoute>
@@ -175,6 +186,15 @@ return (
               <Route
                 path="/profile"
                 element={<Profile />}
+              />
+
+              <Route
+                path="/payment-history"
+                element={
+                  <ProtectedRoute>
+                    <PaymentHistory />
+                  </ProtectedRoute>
+                }
               />
 
               <Route

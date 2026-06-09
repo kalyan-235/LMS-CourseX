@@ -466,3 +466,50 @@
 .pdf-viewer iframe{
   border:none;
 }
+
+/* CERTIFICATE PROMPT */
+
+.certificate-prompt{
+  background:linear-gradient(135deg,#4F46E5,#6366F1);
+  color:white;
+  padding:40px;
+  border-radius:20px;
+  text-align:center;
+  margin-top:30px;
+}
+
+.certificate-prompt h2{
+  font-size:28px;
+  margin-bottom:16px;
+  font-weight:700;
+}
+
+.certificate-prompt p{
+  font-size:16px;
+  margin-bottom:30px;
+  opacity:0.95;
+}
+
+.certificate-btn{
+  background:white;
+  color:#4F46E5;
+  border:none;
+  padding:14px 32px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.3s ease;
+}
+
+.certificate-btn:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+.certificate-btn:disabled{
+  opacity:0.7;
+  cursor:not-allowed;
+  background:#f0f0f0;
+  color:#999;
+}

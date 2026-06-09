@@ -8,6 +8,7 @@ import Notes from "../components/Notes";
 import Certificate from "../components/Certificate";
 import Quiz from "../components/Quiz";
 import PDFModal from "../components/PDFModal";
+import PaymentModal from "../components/PaymentModal";
 
 export default function CourseDetail() {
 
@@ -33,6 +34,12 @@ export default function CourseDetail() {
   const [showCertificate, setShowCertificate] = useState(false);
 
   const [userName, setUserName] = useState("");
+
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
 
   useEffect(() => {
 
@@ -156,13 +163,22 @@ export default function CourseDetail() {
 
       if (!token) {
 
-        alert(
-          "Please login first"
+        window.addToast(
+          "Please login first",
+          "warning"
         );
 
         return;
       }
 
+      // Check if course is paid
+      if (course.price && course.price !== "Free") {
+        // Show payment modal for paid courses
+        setShowPaymentModal(true);
+        return;
+      }
+
+      // Enroll directly for free courses
       await API.post(
 
         "/enrollments/enroll",
@@ -182,17 +198,61 @@ export default function CourseDetail() {
 
       setIsEnrolled(true);
 
-      alert(
-        "Course Enrolled Successfully"
+      window.addToast(
+        "Course Enrolled Successfully",
+        "success"
       );
 
     } catch (err) {
 
       console.log(err);
 
-      alert(
-        "Enrollment Failed"
+      window.addToast(
+        "Enrollment Failed: " + err.response?.data?.message || err.message,
+        "error"
       );
+
+    }
+
+  };
+
+  // PAYMENT SUCCESS HANDLER
+
+  const handlePaymentSuccess = async (paymentRecordId) => {
+
+    try {
+
+      const token =
+        localStorage.getItem("token");
+
+      // Enroll user after successful payment
+      await API.post(
+
+        "/enrollments/enroll",
+
+        {
+          courseId: id,
+          paymentId: paymentRecordId,
+        },
+
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+
+      );
+
+      setIsEnrolled(true);
+      setShowPaymentModal(false);
+      window.addToast("Course Enrolled Successfully!", "success");
+      checkEnrollment();
+
+    } catch (err) {
+
+      console.log(err);
+      window.addToast("Enrollment failed after payment: " + (err.response?.data?.message || err.message), "error");
 
     }
 
@@ -241,6 +301,7 @@ export default function CourseDetail() {
     } catch (err) {
 
       console.log(err);
+      window.addToast("Error updating progress", "error");
 
     }
 
@@ -252,8 +313,9 @@ const handleVideoOpen = async () => {
 
   if (!isEnrolled) {
 
-    alert(
-      "Please enroll to access videos"
+    window.addToast(
+      "Please enroll to access videos",
+      "warning"
     );
 
     return;
@@ -276,8 +338,9 @@ const handlePdfOpen = (file, title) => {
 
   if (!isEnrolled) {
 
-    alert(
-      "Please enroll to access PDFs"
+    window.addToast(
+      "Please enroll to access PDFs",
+      "warning"
     );
 
     return;
@@ -298,10 +361,15 @@ const handlePdfOpen = (file, title) => {
   const generateCertificate = async()=>{
    try{
   
+    // PREVENT MULTIPLE CLICKS
+    if(isGenerating) return;
+    
+    setIsGenerating(true);
+  
     const token =
      localStorage.getItem("token");
   
-    await API.post(
+    const response = await API.post(
     
      "/certificates/issue",
     
@@ -322,18 +390,30 @@ const handlePdfOpen = (file, title) => {
 
     setActiveTab("certificate");
   
-    alert(
-     "Certificate Generated Successfully!"
+    window.addToast(
+     "Certificate Generated Successfully!",
+     "success"
     );
   
    }catch(error){
   
     console.log(error);
-
-    alert(
-      "Error generating certificate"
-    );
+    
+    // SHOW MESSAGE IF CERTIFICATE ALREADY EXISTS
+    if(error.response?.status === 400){
+      window.addToast(
+        "Certificate already exists for this course! You cannot generate it again.",
+        "info"
+      );
+    } else {
+      window.addToast(
+        "Error generating certificate: " + (error.response?.data?.message || error.message),
+        "error"
+      );
+    }
   
+   } finally {
+    setIsGenerating(false);
    }
   
   };
@@ -347,6 +427,7 @@ const handlePdfOpen = (file, title) => {
 
   if (!course) {
 
+    window.addToast("Course not found", "error");
     return <h2>Course Not Found</h2>;
 
   }
@@ -700,8 +781,9 @@ const handlePdfOpen = (file, title) => {
                 <button
                   className="certificate-btn"
                   onClick={generateCertificate}
+                  disabled={isGenerating || showCertificate}
                 >
-                  📜 Generate Certificate
+                  {isGenerating ? "⏳ Generating..." : showCertificate ? "✅ Certificate Generated" : "📜 Generate Certificate"}
                 </button>
 
               </div>
@@ -724,6 +806,20 @@ const handlePdfOpen = (file, title) => {
           onClose={() =>
             setSelectedPdf(null)
           }
+        />
+
+      )}
+
+      {/* PAYMENT MODAL */}
+
+      {showPaymentModal && (
+
+        <PaymentModal
+          course={course}
+          onClose={() =>
+            setShowPaymentModal(false)
+          }
+          onPaymentSuccess={handlePaymentSuccess}
         />
 
       )}

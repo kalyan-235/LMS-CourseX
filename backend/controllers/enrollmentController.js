@@ -1,92 +1,91 @@
 
-import Enrollment
-from "../models/Enrollment.js";
-
-import Course
-from "../models/Course.js";
+import Enrollment from "../models/Enrollment.js";
+import Course from "../models/Course.js";
+import Payment from "../models/Payment.js";
 
 // ENROLL COURSE
-
 export const enrollCourse =
 async (req,res) => {
 
   try {
 
-    const { courseId } =
+    const { courseId, paymentId } =
       req.body;
 
     const userId =
       req.user.id;
 
     // CHECK COURSE
-
     const course =
       await Course.findById(
         courseId
       );
 
     if (!course) {
-
       return res.status(404)
       .json({
         message:
           "Course not found",
       });
+    }
 
+    // CHECK PAYMENT (if course has price)
+    if (course.price && course.price !== "Free") {
+      const payment = await Payment.findById(paymentId);
+      
+      if (!payment) {
+        return res.status(400)
+        .json({
+          message:
+            "Payment record not found. Please make payment first.",
+        });
+      }
+
+      if (payment.status !== "success") {
+        return res.status(400)
+        .json({
+          message:
+            "Payment not completed. Please complete payment first.",
+          status: payment.status,
+        });
+      }
     }
 
     // CHECK ALREADY ENROLLED
-
     const alreadyEnrolled =
       await Enrollment.findOne({
-
         userId,
         courseId,
-
       });
 
     if (alreadyEnrolled) {
-
       return res.status(400)
       .json({
         message:
           "Already enrolled",
       });
-
     }
 
     // CREATE ENROLLMENT
-
     const enrollment =
       await Enrollment.create({
-
         userId,
         courseId,
-
       });
 
     res.status(201).json({
-
       message:
         "Enrollment successful",
-
       enrollment,
-
     });
 
   } catch (err) {
-
     console.log(err);
-
     res.status(500).json({
-
       message:
         "Enrollment failed",
-
     });
-
   }
-
 };
 
 // GET MY COURSES

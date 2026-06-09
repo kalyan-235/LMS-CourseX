@@ -124,7 +124,8 @@
 }
 
 .feature-intro h2 {
-  font-size: 2rem;
+  font-size: 2.5rem;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: var(--spacing-md);
 }
@@ -136,7 +137,7 @@
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-2xl);
 }
 

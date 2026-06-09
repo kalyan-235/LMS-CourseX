@@ -15,7 +15,6 @@ export default function Explore() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("");
-  const [rating, setRating] = useState(0);
   
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 12;
@@ -53,16 +52,9 @@ export default function Explore() {
 
   // FILTER & SORT COURSES
   useEffect(() => {
-    let filtered = [...courses];
-
-    // Apply rating filter
-    if (rating > 0) {
-      filtered = filtered.filter((course) => (course.rating || 0) >= rating);
-    }
-
-    setFilteredCourses(filtered);
+    setFilteredCourses(courses);
     setCurrentPage(1);
-  }, [courses, rating]);
+  }, [courses]);
 
   // PAGINATION
   const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
@@ -80,7 +72,6 @@ export default function Explore() {
     setSearch("");
     setCategory("all");
     setSort("");
-    setRating(0);
     setCurrentPage(1);
   };
 
@@ -96,7 +87,7 @@ export default function Explore() {
         <div className="filters-section">
           <div className="filter-header">
             <h3>Filters</h3>
-            {(search || category !== "all" || sort || rating > 0) && (
+            {(search || category !== "all" || sort) && (
               <button className="btn-clear" onClick={handleClearFilters}>
                 Clear All
               </button>
@@ -140,29 +131,6 @@ export default function Explore() {
               <option value="priceLow">Price: Low to High</option>
               <option value="priceHigh">Price: High to Low</option>
             </select>
-          </div>
-
-          {/* RATING FILTER */}
-          <div className="filter-group">
-            <label>Minimum Rating</label>
-            <div className="rating-selector">
-              {[0, 1, 2, 3, 4, 5].map((r) => (
-                <button
-                  key={r}
-                  className={`rating-btn ${rating === r ? "active" : ""}`}
-                  onClick={() => setRating(r)}
-                >
-                  {r === 0 ? "All" : `${r}+ ⭐`}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* RESULTS COUNT */}
-          <div className="filter-results">
-            <p>
-              <strong>{filteredCourses.length}</strong> courses found
-            </p>
           </div>
         </div>
 

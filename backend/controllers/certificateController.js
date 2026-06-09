@@ -10,6 +10,22 @@ async(req,res)=>{
    courseId
   } = req.body;
 
+  // CHECK IF CERTIFICATE ALREADY EXISTS FOR THIS USER + COURSE
+  const existingCertificate = 
+   await Certificate.findOne({
+    userId: req.user.id,
+    courseId: courseId
+   });
+
+  // IF EXISTS, RETURN IT INSTEAD OF CREATING NEW ONE
+  if(existingCertificate){
+   return res.status(200).json({
+    message: "Certificate already exists",
+    certificate: existingCertificate
+   });
+  }
+
+  // CREATE NEW CERTIFICATE ONLY IF DOESN'T EXIST
   const certificate =
    await Certificate.create({
 
@@ -29,6 +45,13 @@ async(req,res)=>{
    "Certificate Error:",
    error
   );
+
+  // HANDLE DUPLICATE KEY ERROR
+  if(error.code === 11000){
+   return res.status(400).json({
+    message: "Certificate already exists for this course"
+   });
+  }
 
   res.status(500).json({
    message:

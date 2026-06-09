@@ -33,6 +33,12 @@ new mongoose.Schema({
 
 );
 
+// Compound unique index - only one certificate per user per course
+certificateSchema.index(
+  { userId: 1, courseId: 1 },
+  { unique: true }
+);
+
 export default mongoose.model(
  "Certificate",
  certificateSchema

@@ -60,6 +60,17 @@ export default function Sidebar() {
           Profile
         </Link>
 
+        <Link
+          to="/payment-history"
+          className={`ni ${
+            location.pathname === "/payment-history"
+              ? "active"
+              : ""
+          }`}
+        >
+          💳 Payments
+        </Link>
+
       </nav>
     </aside>
   );

@@ -59,6 +59,13 @@ export default function AdminSidebar() {
         </NavLink>
 
         <NavLink
+          to="/admin/payments"
+          className="admin-link"
+        >
+          💳 Payments
+        </NavLink>
+
+        <NavLink
           to="/admin/settings"
           className="admin-link"
         >

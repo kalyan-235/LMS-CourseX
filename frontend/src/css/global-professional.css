@@ -124,7 +124,24 @@ a {
 
 a:hover {
   color: var(--primary-dark);
-  text-decoration: underline;
+}
+
+/* Prevent underlines on card links and content */
+.feature-card a,
+.feature-card a:hover,
+.cc a,
+.cc a:hover,
+.course-card a,
+.course-card a:hover,
+.mlcard a,
+.mlcard a:hover,
+.course-item a,
+.course-item a:hover,
+.completed-course-card a,
+.completed-course-card a:hover,
+.certificate-card a,
+.certificate-card a:hover {
+  text-decoration: none !important;
 }
 
 /* ==================== BUTTONS ==================== */
