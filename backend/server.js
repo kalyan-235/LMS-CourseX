@@ -24,14 +24,16 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // middlewares
+
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://lms-course-ix4b11niq-kalyan-235s-projects.vercel.app"
-      
+      "https://lms-course-ix4b11niq-kalyan-235s-projects.vercel.app",
+      "https://lms-course-x-git-main-kalyan-235s-projects.vercel.app",
+      "https://lms-course-x.vercel.app"
     ],
-    credentials: true
+    credentials: true,
   })
 );
 app.use(express.json());
