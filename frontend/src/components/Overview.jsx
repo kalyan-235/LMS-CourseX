@@ -53,28 +53,6 @@ export default function Overview({ course }) {
 
       </div>
 
-      {/* PRICE */}
-
-      <div className="price-box">
-
-        <div>
-
-          <div className="course-price">
-            {course.price}
-          </div>
-
-          <div className="old-price">
-            {course.oldprice}
-          </div>
-
-        </div>
-
-        <button className="enroll-btn">
-          Enroll Now
-        </button>
-
-      </div>
-
     </div>
 
   );

@@ -1,25 +1,82 @@
 import Course from "../models/Course.js";
 
 export const getCourses =
-  async (req, res) => {
+async(req,res)=>{
 
-    try {
+ try{
 
-      const courses =
-        await Course.find();
+  const {
+   search,
+   category,
+   sort
+  } = req.query;
 
-      res.status(200).json(courses);
+  let query = {};
 
-    } catch (err) {
+  if(search){
 
-      res.status(500).json({
-        message:
-          "Failed to fetch courses",
-      });
+   query.title = {
+    $regex:search,
+    $options:"i"
+   };
 
-    }
+  }
 
-  };
+  if(
+   category &&
+   category !== "all"
+  ){
+
+   query.category =
+    category;
+
+  }
+
+  let courseQuery =
+   Course.find(query);
+
+  if(sort==="priceLow"){
+
+   courseQuery =
+    courseQuery.sort({
+      price:1
+    });
+
+  }
+
+  if(sort==="priceHigh"){
+
+   courseQuery =
+    courseQuery.sort({
+      price:-1
+    });
+
+  }
+
+  if(sort==="latest"){
+
+   courseQuery =
+    courseQuery.sort({
+      createdAt:-1
+    });
+
+  }
+
+  const courses =
+   await courseQuery;
+
+  res.json(courses);
+
+ }catch(error){
+
+  res.status(500).json({
+   message:
+   "Failed to fetch courses"
+  });
+
+ }
+
+};
 
 export const getSingleCourse =
   async (req, res) => {
@@ -68,10 +125,11 @@ export const createCourse =
       });
 
     } catch (err) {
+      console.log(err);
 
       res.status(500).json({
-        message:
-          "Failed to create course",
+        message:"Failed to create course",
+        error:err.message,
       });
 
     }
@@ -79,33 +137,59 @@ export const createCourse =
   };
 
 export const updateCourse =
-  async (req, res) => {
+async (req, res) => {
 
-    try {
+  try {
 
-      const updatedCourse =
-        await Course.findByIdAndUpdate(
-          req.params.id,
-          req.body,
-          { new: true }
-        );
+    const course =
+      await Course.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+      );
 
-      res.status(200).json({
-        message:
-          "Course updated successfully",
-        updatedCourse,
-      });
+    res.json(course);
 
-    } catch (err) {
+  } catch (error) {
 
-      res.status(500).json({
-        message:
-          "Failed to update course",
-      });
+    res.status(500).json({
+      message: "Course update failed"
+    });
 
+  }
+
+};
+export const updateCourseQuiz =
+async(req,res)=>{
+
+ try{
+
+  const course =
+   await Course.findByIdAndUpdate(
+
+    req.params.id,
+
+    {
+     quiz:req.body.quiz
+    },
+
+    {
+     new:true
     }
 
-  };
+   );
+
+  res.json(course);
+
+ }catch(error){
+
+  res.status(500).json({
+   message:"Quiz update failed"
+  });
+
+ }
+
+};
 
 export const deleteCourse =
   async (req, res) => {

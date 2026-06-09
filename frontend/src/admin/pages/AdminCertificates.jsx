@@ -1,8 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-import AdminSidebar
-from "../components/AdminSidebar";
+import AdminLayout
+from "../layouts/AdminLayout";
+
+import API from "../../api/axios";
 
 // import AdminTopbar
 // from "../components/AdminTopbar";
@@ -10,84 +12,172 @@ from "../components/AdminSidebar";
 export default function AdminCertificates() {
 
   const [certificates, setCertificates] =
-    useState([
+    useState([]);
 
-      {
-        id:1,
-        student:"Kalyan",
-        course:"React Frontend Mastery",
-        issued:"20 May 2026",
-        status:"Issued",
-      },
+  const [loading, setLoading] =
+    useState(true);
 
-      {
-        id:2,
-        student:"Teja",
-        course:"MongoDB Database Course",
-        issued:"18 May 2026",
-        status:"Pending",
-      },
+  useEffect(() => {
 
-      {
-        id:3,
-        student:"Ajay",
-        course:"JavaScript Basics",
-        issued:"15 May 2026",
-        status:"Issued",
-      },
+    fetchCertificates();
 
-    ]);
+  }, []);
+
+  // FETCH CERTIFICATES FROM BACKEND
+
+  const fetchCertificates = async () => {
+
+    try {
+
+      const token =
+        localStorage.getItem("token");
+
+      const res =
+        await API.get(
+          "/certificates",
+          {
+            headers:{
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      setCertificates(res.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Failed to fetch certificates"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
 
   // DELETE CERTIFICATE
 
-  const deleteCertificate = (id) => {
+  const deleteCertificate = async (id) => {
 
-    const filtered =
-      certificates.filter(
-        (item) =>
-          item.id !== id
+    try {
+
+      const token =
+        localStorage.getItem("token");
+
+      await API.delete(
+        `/certificates/${id}`,
+        {
+          headers:{
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
       );
 
-    setCertificates(filtered);
+      const filtered =
+        certificates.filter(
+          (item) =>
+            item._id !== id
+        );
+
+      setCertificates(filtered);
+
+      alert(
+        "Certificate deleted successfully"
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Failed to delete certificate"
+      );
+
+    }
+
+  };
+
+  // DOWNLOAD CERTIFICATE
+
+  const downloadCertificate = (cert) => {
+
+    try {
+
+      if (cert.certificatePath) {
+
+        window.open(
+          cert.certificatePath,
+          "_blank"
+        );
+
+      } else {
+
+        alert(
+          "Certificate not available"
+        );
+
+      }
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
   };
 
   return (
 
-    <div className="admin-layout">
+    <AdminLayout>
 
-      <AdminSidebar />
+      <div className="admin-certificate-page">
 
-      <div className="admin-content">
+        {/* HEADER */}
 
-        {/* <AdminTopbar /> */}
+        <div className="certificate-top">
 
-        <div className="admin-certificate-page">
+          <div>
 
-          {/* HEADER */}
+            <h1>
+              Certificate Management
+            </h1>
 
-          <div className="certificate-top">
-
-            <div>
-
-              <h1>
-                Certificate Management
-              </h1>
-
-              <p>
-                Manage issued certificates
-              </p>
-
-            </div>
-
-            <button className="issue-btn">
-
-              + Issue Certificate
-
-            </button>
+            <p>
+              Manage issued certificates
+            </p>
 
           </div>
 
-          {/* CARDS */}
+          <button className="issue-btn">
+
+            + Issue Certificate
+
+          </button>
+
+        </div>
+
+        {/* LOADING STATE */}
+
+        {loading ? (
+
+          <div className="loading">
+            <p>Loading certificates...</p>
+          </div>
+
+        ) : certificates.length === 0 ? (
+
+          <div className="no-certificates">
+            <p>No certificates issued yet</p>
+          </div>
+
+        ) : (
 
           <div className="certificate-grid">
 
@@ -95,7 +185,7 @@ export default function AdminCertificates() {
 
               <div
                 className="certificate-card"
-                key={item.id}
+                key={item._id}
               >
 
                 {/* ICON */}
@@ -107,12 +197,14 @@ export default function AdminCertificates() {
                 {/* CONTENT */}
 
                 <h2>
-                  {item.student}
+                  {item.userId?.name ||
+                   item.student}
                 </h2>
 
                 <p className="certificate-course">
 
-                  {item.course}
+                  {item.courseId?.title ||
+                   item.course}
 
                 </p>
 
@@ -123,16 +215,18 @@ export default function AdminCertificates() {
                   </span>
 
                   <strong>
-                    {item.issued}
+                    {new Date(
+                      item.issuedDate
+                    ).toLocaleDateString()}
                   </strong>
 
                 </div>
 
                 <div
-                  className={`certificate-status ${item.status.toLowerCase()}`}
+                  className={`certificate-status ${(item.status || "Issued").toLowerCase()}`}
                 >
 
-                  {item.status}
+                  {item.status || "Issued"}
 
                 </div>
 
@@ -140,7 +234,12 @@ export default function AdminCertificates() {
 
                 <div className="certificate-actions">
 
-                  <button className="download-btn">
+                  <button
+                    className="download-btn"
+                    onClick={() =>
+                      downloadCertificate(item)
+                    }
+                  >
 
                     Download
 
@@ -150,7 +249,7 @@ export default function AdminCertificates() {
                     className="delete-certificate-btn"
                     onClick={() =>
                       deleteCertificate(
-                        item.id
+                        item._id
                       )
                     }
                   >
@@ -167,11 +266,11 @@ export default function AdminCertificates() {
 
           </div>
 
-        </div>
+        )}
 
       </div>
 
-    </div>
+    </AdminLayout>
 
   );
 }

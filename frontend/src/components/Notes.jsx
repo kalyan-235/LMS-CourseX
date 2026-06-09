@@ -1,59 +1,135 @@
 import { useEffect, useState } from "react";
 
 export default function Notes({ courseId }) {
+  const [note, setNote] = useState("");
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [isEditing, setIsEditing] = useState(true);
 
-  const [note, setNote] =
-    useState("");
+useEffect(() => {
 
-  /* LOAD SAVED NOTE */
+  const savedData =
+    localStorage.getItem(`notes-${courseId}`);
 
-  useEffect(() => {
+  if (!savedData) return;
 
-    const savedNote =
-      localStorage.getItem(
-        `notes-${courseId}`
-      );
+  try {
 
-    if(savedNote){
-      setNote(savedNote);
-    }
+    const parsed =
+      JSON.parse(savedData);
 
-  }, [courseId]);
+    setNote(parsed.note || "");
+    setLastUpdated(
+      parsed.lastUpdated || ""
+    );
 
-  /* SAVE NOTE */
+    setIsEditing(false);
+
+  } catch (error) {
+
+    // Old notes format support
+
+    setNote(savedData);
+    setIsEditing(false);
+
+  }
+
+}, [courseId]);
 
   const saveNote = () => {
+    const now = new Date();
+
+    const formattedDate = now.toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+
+    const noteData = {
+      note,
+      lastUpdated: formattedDate,
+    };
 
     localStorage.setItem(
       `notes-${courseId}`,
-      note
+      JSON.stringify(noteData)
     );
 
-    alert("Notes Saved");
+    setLastUpdated(formattedDate);
+    setIsEditing(false);
+
+    alert("Notes Saved Successfully");
+  };
+
+  const editNote = () => {
+    setIsEditing(true);
+  };
+
+  const deleteNote = () => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete notes?"
+    );
+
+    if (!confirmDelete) return;
+
+    localStorage.removeItem(`notes-${courseId}`);
+
+    setNote("");
+    setLastUpdated("");
+    setIsEditing(true);
   };
 
   return (
+    <div className="notes-container">
 
-    <div className="notes-box">
+      <div className="notes-header">
+        <div>
+          <h2>📒 Course Notes</h2>
 
-      <h2 className="notes-title">
-        My Notes
-      </h2>
+          {lastUpdated && (
+            <p className="updated-time">
+              Last Updated: {lastUpdated}
+            </p>
+          )}
+        </div>
+
+        <div className="notes-stats">
+          {note.length} Characters
+        </div>
+      </div>
 
       <textarea
-        placeholder="Write important notes..."
+        placeholder="Write your important notes here..."
         value={note}
-        onChange={(e)=>
-          setNote(e.target.value)
-        }
+        disabled={!isEditing}
+        onChange={(e) => setNote(e.target.value)}
       />
 
-      <button onClick={saveNote}>
-        Save Notes
-      </button>
+      <div className="notes-actions">
+
+        {isEditing ? (
+          <button
+            className="save-btn"
+            onClick={saveNote}
+          >
+            Save Notes
+          </button>
+        ) : (
+          <button
+            className="edit-btn"
+            onClick={editNote}
+          >
+            Edit Notes
+          </button>
+        )}
+
+        <button
+          className="delete-btn"
+          onClick={deleteNote}
+        >
+          Delete
+        </button>
+
+      </div>
 
     </div>
-
   );
-
 }

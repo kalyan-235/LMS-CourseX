@@ -6,8 +6,9 @@ export default function Certificate({
   course,
 }) {
 
-  const certId =
-    `CERT-${course.id}-${Date.now()}`;
+const certId =
+ course.certificateId ||
+ `CERT-${course._id}`;
 
   // DOWNLOAD PDF
 
@@ -15,7 +16,7 @@ export default function Certificate({
 
     const input =
       document.getElementById(
-        `certificate-${course.id}`
+        `certificate-${course._id}`
       );
 
     const canvas =
@@ -51,7 +52,7 @@ export default function Certificate({
 
     const input =
       document.getElementById(
-        `certificate-${course.id}`
+        `certificate-${course._id}`
       );
 
     const canvas =
@@ -85,7 +86,7 @@ export default function Certificate({
 
       <div
         className="certificate"
-        id={`certificate-${course.id}`}
+        id={`certificate-${course._id}`}
       >
 
         {/* LOGO */}
@@ -109,6 +110,12 @@ export default function Certificate({
             This Certificate is Proudly Presented To
 
           </p>
+          <p className="cert-info">
+           Duration: {course.duration || 120} Hours
+          </p>
+          <p className="cert-info">
+           Final Score: {course.quizScore || 95}%
+          </p>
 
           <h2 className="cert-user">
             {userName}
@@ -119,6 +126,17 @@ export default function Certificate({
             for successfully completing the course
 
           </p>
+          <div className="skills-box">
+
+  <span>React</span>
+
+  <span>Node.js</span>
+
+  <span>MongoDB</span>
+
+  <span>Express.js</span>
+
+</div>
 
           <h2 className="cert-course">
             {course.title}
@@ -174,6 +192,19 @@ export default function Certificate({
               <p>
                 {course.instructor.name}
               </p>
+              <div>
+
+  <img
+   className="signature"
+   src="/admin-sign.png"
+   alt="admin"
+  />
+
+  <h4>Admin Signature</h4>
+
+  <p>LMS CourseX</p>
+
+</div>
 
             </div>
 
@@ -188,6 +219,12 @@ export default function Certificate({
               </p>
 
             </div>
+            <div className="verify-link">
+
+ Verify:
+ www.lmscoursex.com/verify/{certId}
+
+</div>
 
           </div>
 

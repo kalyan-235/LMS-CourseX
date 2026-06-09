@@ -9,7 +9,7 @@
   width:calc(100% - 240px);
   height:85px;
 
-  background:#ffffff;
+  background:var(--bg-primary);
 
   display:flex;
   align-items:center;
@@ -17,7 +17,7 @@
 
   padding:0 28px;
 
-  border-bottom:1px solid #e5e7eb;
+  border-bottom:1px solid var(--border-color);
 
   z-index:1000;
 }
@@ -34,13 +34,18 @@
   border:none;
   outline:none;
 
-  background:#f3f4f6;
+  background:var(--bg-secondary);
 
   border-radius:14px;
 
   padding:0 18px;
 
   font-size:15px;
+  color:var(--text-primary);
+}
+
+.sbar input::placeholder{
+  color:var(--text-secondary);
 }
 
 .top-right{

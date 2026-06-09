@@ -41,7 +41,7 @@ export default function MyLearning() {
       const res =
         await API.get(
 
-          "/enrollment/my-courses",
+          "/enrollments/my-courses",
 
           {
             headers:{

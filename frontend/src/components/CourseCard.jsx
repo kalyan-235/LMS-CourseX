@@ -13,9 +13,9 @@ export default function CourseCard({
       {courses.map((course) => (
 
         <Link
-          to={`/course/${course.id}`}
+          to={`/course/${course._id}`}
           className="cc"
-          key={course.id}
+          key={course._id}
         >
 
           <div className="cthumb">

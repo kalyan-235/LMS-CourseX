@@ -28,6 +28,15 @@
   color:#111827;
 }
 
+.quiz-course-image{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  border-radius:16px;
+  margin-bottom:16px;
+  display:block;
+}
+
 .add-quiz-btn{
   padding:14px 24px;
   border:none;
@@ -190,6 +199,61 @@
 .quiz-modal-box h2{
   font-size:30px;
   color:#111827;
+}
+
+.quiz-modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+
+.quiz-modal-header h2{
+  margin:0;
+  flex:1;
+}
+
+.close-modal-btn{
+  background:none;
+  border:none;
+  font-size:24px;
+  color:#6b7280;
+  cursor:pointer;
+  padding:5px 10px;
+  transition:0.3s;
+}
+
+.close-modal-btn:hover{
+  color:#111827;
+}
+
+.course-select-box{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:16px;
+  background:#f9fafb;
+  border-radius:14px;
+  margin-bottom:16px;
+}
+
+.course-select-box label{
+  font-weight:600;
+  color:#111827;
+}
+
+.course-select-box select{
+  padding:12px 14px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  outline:none;
+  font-size:15px;
+  cursor:pointer;
+}
+
+.course-select-box select:focus{
+  border-color:#4f46e5;
+  box-shadow:0 0 0 3px rgba(79,70,229,0.1);
 }
 
 .quiz-modal-box input{

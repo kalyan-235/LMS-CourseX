@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
 
 import CourseCard from "../components/CourseCard";
+import Loading from "../components/Loading";
+import Pagination from "../components/Pagination";
 
 import API from "../api/axios";
 
 export default function Explore() {
 
-  const [courses, setCourses] =
-    useState([]);
-
-  const [active, setActive] =
-    useState("all");
+  const [courses, setCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
+  const [sort, setSort] = useState("");
+  const [rating, setRating] = useState(0);
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = 12;
 
   const categories = [
     "all",
@@ -21,93 +29,174 @@ export default function Explore() {
   ];
 
   // FETCH COURSES
-
   useEffect(() => {
-
     fetchCourses();
-
-  }, []);
+  }, [search, category, sort]);
 
   const fetchCourses = async () => {
-
     try {
-
-      const res =
-        await API.get("/courses");
-
+      setLoading(true);
+      const res = await API.get(
+        `/courses?search=${search}&category=${
+          category === "all" ? "" : category
+        }&sort=${sort}`
+      );
       setCourses(res.data);
-
-    } catch (err) {
-
-      console.log(err);
-
+      setCurrentPage(1);
+    } catch (error) {
+      console.log(error);
+      window.addToast?.("Failed to load courses", "error");
+    } finally {
+      setLoading(false);
     }
-
   };
 
-  // FILTER
+  // FILTER & SORT COURSES
+  useEffect(() => {
+    let filtered = [...courses];
 
-  const filteredCourses =
+    // Apply rating filter
+    if (rating > 0) {
+      filtered = filtered.filter((course) => (course.rating || 0) >= rating);
+    }
 
-    active === "all"
+    setFilteredCourses(filtered);
+    setCurrentPage(1);
+  }, [courses, rating]);
 
-      ? courses
-
-      : courses.filter(
-
-          (course) =>
-
-            course.category?.toLowerCase() ===
-            active.toLowerCase()
-
-        );
-
-  return (
-
-    <>
-
-      <div className="exh">
-
-        <h1>
-          Explore Courses
-        </h1>
-
-      </div>
-
-      {/* CATEGORY BUTTONS */}
-
-      <div className="catwrap">
-
-        {categories.map((cat,index) => (
-
-          <button
-            key={index}
-            className={`catbtn ${
-              active === cat
-                ? "activecat"
-                : ""
-            }`}
-            onClick={() =>
-              setActive(cat)
-            }
-          >
-
-            {cat}
-
-          </button>
-
-        ))}
-
-      </div>
-
-      {/* COURSES */}
-
-      <CourseCard
-        courses={filteredCourses}
-      />
-
-    </>
-
+  // PAGINATION
+  const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
+  const paginatedCourses = filteredCourses.slice(
+    (currentPage - 1) * coursesPerPage,
+    currentPage * coursesPerPage
   );
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setCategory("all");
+    setSort("");
+    setRating(0);
+    setCurrentPage(1);
+  };
+
+  return (
+    <>
+      <div className="explore-header">
+        <h1>🎓 Explore Courses</h1>
+        <p>Discover a wide range of courses to expand your skills</p>
+      </div>
+
+      <div className="explore-container">
+        {/* FILTERS SECTION */}
+        <div className="filters-section">
+          <div className="filter-header">
+            <h3>Filters</h3>
+            {(search || category !== "all" || sort || rating > 0) && (
+              <button className="btn-clear" onClick={handleClearFilters}>
+                Clear All
+              </button>
+            )}
+          </div>
+
+          {/* SEARCH */}
+          <div className="filter-group">
+            <label>Search</label>
+            <input
+              type="text"
+              placeholder="Search courses..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="filter-input"
+            />
+          </div>
+
+          {/* CATEGORY */}
+          <div className="filter-group">
+            <label>Category</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="filter-select"
+            >
+              <option value="all">All Categories</option>
+              <option value="frontend">Frontend</option>
+              <option value="backend">Backend</option>
+              <option value="database">Database</option>
+              <option value="fullstack">Fullstack</option>
+            </select>
+          </div>
+
+          {/* SORT */}
+          <div className="filter-group">
+            <label>Sort By</label>
+            <select value={sort} onChange={(e) => setSort(e.target.value)} className="filter-select">
+              <option value="">Most Popular</option>
+              <option value="latest">Latest</option>
+              <option value="priceLow">Price: Low to High</option>
+              <option value="priceHigh">Price: High to Low</option>
+            </select>
+          </div>
+
+          {/* RATING FILTER */}
+          <div className="filter-group">
+            <label>Minimum Rating</label>
+            <div className="rating-selector">
+              {[0, 1, 2, 3, 4, 5].map((r) => (
+                <button
+                  key={r}
+                  className={`rating-btn ${rating === r ? "active" : ""}`}
+                  onClick={() => setRating(r)}
+                >
+                  {r === 0 ? "All" : `${r}+ ⭐`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* RESULTS COUNT */}
+          <div className="filter-results">
+            <p>
+              <strong>{filteredCourses.length}</strong> courses found
+            </p>
+          </div>
+        </div>
+
+        {/* COURSES GRID */}
+        <div className="courses-section">
+          {loading ? (
+            <Loading fullPage={false} />
+          ) : filteredCourses.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">📚</div>
+              <h3>No courses found</h3>
+              <p>Try adjusting your filters to find what you're looking for</p>
+              <button className="btn-primary" onClick={handleClearFilters}>
+                Clear Filters
+              </button>
+            </div>
+          ) : (
+            <>
+              <CourseCard courses={paginatedCourses} />
+
+              {/* PAGINATION */}
+              {totalPages > 1 && (
+                <div className="pagination-container">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
 }

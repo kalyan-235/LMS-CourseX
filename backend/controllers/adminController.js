@@ -71,6 +71,13 @@ async (req,res) => {
 
       .limit(5);
 
+    // RECENT USERS
+
+    const recentUsers =
+      await User.find()
+      .sort({createdAt:-1})
+      .limit(5);
+
     res.status(200).json({
 
       totalUsers,
@@ -84,6 +91,8 @@ async (req,res) => {
       totalRevenue,
 
       recentEnrollments,
+
+      recentUsers,
 
     });
 

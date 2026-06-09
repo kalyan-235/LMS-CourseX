@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 
 import AdminLayout from "../layouts/AdminLayout";
-
-import { database } from "../../data/courses";
+import API from "../../api/axios";
 
 export default function AdminCourses() {
 
   const [courses, setCourses] =
-    useState(database);
+  useState([]);
 
   const [search, setSearch] =
     useState("");
+
+  const [showForm, setShowForm] =
+    useState(false);
 
   // FORM STATES
 
@@ -71,22 +73,112 @@ export default function AdminCourses() {
         file:"",
       },
     ]);
+    const fetchCourses =
+async ()=>{
 
+  try{
+
+    const res =
+      await API.get(
+        "/courses"
+      );
+
+    setCourses(
+      res.data
+    );
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+};
+useEffect(()=>{
+
+  fetchCourses();
+
+},[]);
   // IMAGE
-
-  const handleImageUpload = (e) => {
-
+  const handleImageUpload =
+  async (e)=>{
+  
     const file =
       e.target.files[0];
-
-    if (file) {
-
-      const imageUrl =
-        URL.createObjectURL(file);
-
-      setImagePreview(imageUrl);
+  
+    if(!file) return;
+  
+    const formData =
+      new FormData();
+  
+    formData.append(
+      "image",
+      file
+    );
+  
+    try{
+    
+      const res =
+        await API.post(
+          "/upload/image",
+          formData
+        );
+      
+      setImagePreview(
+        res.data.imageUrl
+      );
+    
+    }catch(err){
+    
+      console.log(err);
+    
+      alert(
+        "Image Upload Failed"
+      );
+    
     }
+  
   };
+
+  const handlePdfUpload =
+async(index,e)=>{
+
+  const file =
+    e.target.files[0];
+
+  if(!file) return;
+
+  const formData =
+    new FormData();
+
+  formData.append(
+    "pdf",
+    file
+  );
+
+  try{
+
+    const res =
+      await API.post(
+        "/upload/pdf",
+        formData
+      );
+
+    const updated =
+      [...pdfs];
+
+    updated[index].file =
+      res.data.pdfUrl;
+
+    setPdfs(updated);
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+};
 
   // LEARN
 
@@ -190,102 +282,118 @@ export default function AdminCourses() {
     ]);
 
     setEditingCourseId(null);
+
+    setShowForm(false);
   };
 
   // ADD COURSE
+const addCourse =
+async ()=>{
 
-  const addCourse = () => {
+  try{
 
-    if (
-      !title ||
-      !author ||
-      !category ||
-      !price ||
-      !description
-    ) {
-
-      alert(
-        "Please fill all required fields"
+    const token =
+      localStorage.getItem(
+        "token"
       );
 
-      return;
-    }
-
-    const newCourse = {
-
-      id:Date.now(),
+    const courseData = {
 
       title,
-
       author,
-
       category,
-
-      progress:0,
-
       price,
-
       oldprice:oldPrice,
-
       video,
-
       description,
-
-      image:
-        imagePreview ||
-        "https://images.unsplash.com/photo-1515879218367-8466d910aaa4",
-
-      rating:"4.8⭐",
+      image:imagePreview,
 
       learn:learnPoints,
 
       prerequisites,
 
-      pdfs:pdfs.map(
-        (pdf,index) => ({
-          id:index + 1,
-          title:pdf.title,
-          file:pdf.file,
-        })
-      ),
+      pdfs,
 
       instructor:{
         name:author,
         role,
         email,
         bio,
-      },
+      }
 
     };
 
-    setCourses([
-      ...courses,
-      newCourse,
-    ]);
+    await API.post(
+      "/courses",
+      courseData,
+      {
+        headers:{
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
+
+    fetchCourses();
 
     resetForm();
 
-    alert("Course Added");
-  };
+    alert(
+      "Course Added"
+    );
+
+  }catch(err){
+
+    console.log(err);
+
+    alert(
+      "Failed To Add Course"
+    );
+
+  }
+
+};
 
   // DELETE COURSE
 
-  const deleteCourse = (id) => {
+const deleteCourse =
+async(id)=>{
 
-    const filtered =
-      courses.filter(
-        (course) =>
-          course.id !== id
+  try{
+
+    const token =
+      localStorage.getItem(
+        "token"
       );
 
-    setCourses(filtered);
-  };
+    await API.delete(
+
+      `/courses/${id}`,
+
+      {
+        headers:{
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+
+    );
+
+    fetchCourses();
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+};
 
   // EDIT COURSE
 
   const editCourse = (course) => {
 
-    setEditingCourseId(course.id);
+    setEditingCourseId(course._id);
 
     setTitle(course.title);
     setAuthor(course.author);
@@ -335,6 +443,8 @@ export default function AdminCourses() {
       ]
     );
 
+    setShowForm(true);
+
     window.scrollTo({
       top:0,
       behavior:"smooth",
@@ -343,61 +453,69 @@ export default function AdminCourses() {
 
   // UPDATE COURSE
 
-  const updateCourse = () => {
+const updateCourse =
+async ()=>{
 
-    const updatedCourses =
-      courses.map((course) => {
+  try{
 
-        if (
-          course.id ===
-          editingCourseId
-        ) {
+    const token =
+      localStorage.getItem(
+        "token"
+      );
 
-          return {
+    await API.put(
 
-            ...course,
+      `/courses/${editingCourseId}`,
 
-            title,
+      {
+        title,
+        author,
+        category,
+        price,
+        oldprice:oldPrice,
+        video,
+        description,
+        image:imagePreview,
 
-            author,
+        learn:learnPoints,
 
-            category,
+        prerequisites,
 
-            price,
+        pdfs,
 
-            oldprice:oldPrice,
-
-            video,
-
-            description,
-
-            image:imagePreview,
-
-            learn:learnPoints,
-
-            prerequisites,
-
-            pdfs,
-
-            instructor:{
-              name:author,
-              role,
-              email,
-              bio,
-            },
-
-          };
+        instructor:{
+          name:author,
+          role,
+          email,
+          bio,
         }
 
-        return course;
-      });
+      },
 
-    setCourses(updatedCourses);
+      {
+        headers:{
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+
+    );
+
+    fetchCourses();
 
     resetForm();
 
-    alert("Course Updated");
-  };
+    alert(
+      "Course Updated"
+    );
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+};
 
   // SEARCH
 
@@ -425,43 +543,63 @@ export default function AdminCourses() {
             Course Management
           </h2>
 
-          <input
-            type="text"
-            placeholder="Search course..."
-            value={search}
-            onChange={(e) =>
-              setSearch(
-                e.target.value
-              )
-            }
-            className="search-course"
-          />
+          <div className="course-top-actions">
+
+            <input
+              type="text"
+              placeholder="Search course..."
+              value={search}
+              onChange={(e) =>
+                setSearch(
+                  e.target.value
+                )
+              }
+              className="search-course"
+            />
+
+            <button
+              className="add-course-btn"
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
+            >
+              + Add Course
+            </button>
+
+          </div>
 
         </div>
 
         {/* FORM */}
 
+        {showForm && (
+
         <div className="add-course-box">
+          <div className="form-section">
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={
-              handleImageUpload
-            }
-          />
+            <h3>Course Thumbnail</h3>
 
-          <input
-            type="text"
-            placeholder="Course Title"
-            value={title}
-            onChange={(e) =>
-              setTitle(
-                e.target.value
-              )
-            }
-          />
+            <div className="thumbnail-card">
 
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+              />
+
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                />
+              )}
+
+            </div>
+            
+          </div>
+
+          
           <input
             type="text"
             placeholder="Author Name"
@@ -669,11 +807,9 @@ export default function AdminCourses() {
 
             {pdfs.map(
               (pdf,index) => (
-
-                <div
-                  key={index}
-                >
-
+              
+                <div key={index}>
+                
                   <input
                     type="text"
                     placeholder="PDF Title"
@@ -688,17 +824,25 @@ export default function AdminCourses() {
                   />
 
                   <input
-                    type="text"
-                    placeholder="PDF URL"
-                    value={pdf.file}
+                    type="file"
+                    accept=".pdf"
                     onChange={(e) =>
-                      handlePdfChange(
+                      handlePdfUpload(
                         index,
-                        "file",
-                        e.target.value
+                        e
                       )
                     }
                   />
+
+                  {pdf.file && (
+                  
+                    <p>
+                    
+                      ✅ PDF Uploaded
+                  
+                    </p>
+
+                  )}
 
                 </div>
 
@@ -718,29 +862,57 @@ export default function AdminCourses() {
 
           {/* BUTTON */}
 
-          {
-            editingCourseId ? (
+          <div className="form-buttons">
 
-              <button
-                className="add-course-btn"
-                onClick={updateCourse}
-              >
-                Update Course
-              </button>
+            {
+              editingCourseId ? (
 
-            ) : (
+                <>
 
-              <button
-                className="add-course-btn"
-                onClick={addCourse}
-              >
-                Add Course
-              </button>
+                  <button
+                    className="add-course-btn"
+                    onClick={updateCourse}
+                  >
+                    Update Course
+                  </button>
 
-            )
-          }
+                  <button
+                    className="cancel-course-btn"
+                    onClick={resetForm}
+                  >
+                    Cancel
+                  </button>
+
+                </>
+
+              ) : (
+
+                <>
+
+                  <button
+                    className="add-course-btn"
+                    onClick={addCourse}
+                  >
+                    Add Course
+                  </button>
+
+                  <button
+                    className="cancel-course-btn"
+                    onClick={resetForm}
+                  >
+                    Cancel
+                  </button>
+
+                </>
+
+              )
+            }
+
+          </div>
 
         </div>
+
+        )}
 
         {/* IMAGE PREVIEW */}
 

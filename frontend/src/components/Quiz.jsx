@@ -1,7 +1,9 @@
 import { useState } from "react";
+import API from "../api/axios";
 
 export default function Quiz({
   quiz = [],
+  enrollmentId,
 }) {
 
   const [currentQuestion, setCurrentQuestion] =
@@ -13,21 +15,47 @@ export default function Quiz({
   const [showResult, setShowResult] =
     useState(false);
 
-  const handleAnswer = (option) => {
+  // NO QUIZ
+
+  if (!quiz || quiz.length === 0) {
+
+    return (
+
+      <div className="quiz-box">
+
+        <h3>
+          No Quiz Available
+        </h3>
+
+      </div>
+
+    );
+
+  }
+
+  const handleAnswer =
+    async (option) => {
+
+    let newScore = score;
 
     if (
       option ===
       quiz[currentQuestion].answer
     ) {
 
-      setScore(score + 1);
+      newScore++;
+
+      setScore(newScore);
 
     }
 
     const nextQuestion =
       currentQuestion + 1;
 
-    if (nextQuestion < quiz.length) {
+    if (
+      nextQuestion <
+      quiz.length
+    ) {
 
       setCurrentQuestion(
         nextQuestion
@@ -37,66 +65,43 @@ export default function Quiz({
 
       setShowResult(true);
 
-    }
-  };
-  const handleSubmitQuiz =async () => {
+      try {
 
-    let score = 0;
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
-    quiz.forEach((q,index) => {
+        const finalScore =
+          Math.round(
+            (
+              newScore /
+              quiz.length
+            ) * 100
+          );
 
-      if (
-        answers[index] ===
-        q.answer
-      ) {
+        await API.put(
 
-        score += 10;
+          `/enrollments/quiz/${enrollmentId}`,
 
-      }
-
-    });
-
-    setQuizScore(score);
-
-    try {
-
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      await API.put(
-
-        `/enrollment/quiz/${enrollmentId}`,
-
-        { score },
-
-        {
-          headers:{
-            Authorization:
-              `Bearer ${token}`,
+          {
+            score: finalScore,
           },
-        }
 
-      );
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
 
-      if (score >= 70) {
-
-        alert(
-          "Quiz Passed 🎉"
         );
 
-      } else {
+      } catch (err) {
 
-        alert(
-          "Quiz Failed"
-        );
+        console.log(err);
 
       }
-
-    } catch (err) {
-
-      console.log(err);
 
     }
 
@@ -107,7 +112,9 @@ export default function Quiz({
     <div className="quiz-box">
 
       <h2 className="quiz-heading">
+
         Course Quiz
+
       </h2>
 
       {showResult ? (
@@ -115,16 +122,25 @@ export default function Quiz({
         <div className="quiz-result">
 
           <h2>
-            Your Score:
+
+            Score:
             {" "}
-            {score}/{quiz.length}
+            {score}
+            /
+            {quiz.length}
+
           </h2>
 
           <p>
 
-            {score >= 2
-              ? "🎉 Congratulations! You Passed"
-              : "❌ Try Again"}
+            {score >=
+            Math.ceil(
+              quiz.length * 0.7
+            )
+
+              ? "🎉 Quiz Passed"
+
+              : "❌ Quiz Failed"}
 
           </p>
 
@@ -138,32 +154,42 @@ export default function Quiz({
 
             Q{currentQuestion + 1}.
             {" "}
+
             {
               quiz[currentQuestion]
-                .question
+                ?.question
             }
 
           </h3>
 
           <div className="quiz-options">
 
-            {quiz[currentQuestion]
-              .options.map(
-                (option, index) => (
+            {
+              quiz[currentQuestion]
+                ?.options
+                ?.map(
+                  (
+                    option,
+                    index
+                  ) => (
 
-                <button
-                  key={index}
-                  className="quiz-btn"
-                  onClick={() =>
-                    handleAnswer(option)
-                  }
-                >
+                    <button
+                      key={index}
+                      className="quiz-btn"
+                      onClick={() =>
+                        handleAnswer(
+                          option
+                        )
+                      }
+                    >
 
-                  {option}
+                      {option}
 
-                </button>
+                    </button>
 
-              ))}
+                  )
+                )
+            }
 
           </div>
 
@@ -174,4 +200,5 @@ export default function Quiz({
     </div>
 
   );
+
 }

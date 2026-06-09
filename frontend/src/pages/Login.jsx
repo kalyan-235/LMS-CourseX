@@ -119,6 +119,13 @@ const handleLogin = async (e) => {
           required
         />
 
+        <Link
+          to="/forgot-password"
+          className="forgot-password-link"
+        >
+          Forgot Password?
+        </Link>
+
         {error && (
 
           <p className="login-error">

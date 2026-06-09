@@ -2,186 +2,228 @@
 import { useEffect, useState } from "react";
 
 import API from "../../api/axios";
+import Loading from "../../components/Loading";
 
 import AdminLayout from "../layouts/AdminLayout";
 
 export default function AdminDashboard() {
 
-  const [data, setData] =
-    useState(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     fetchAnalytics();
-
   }, []);
 
-  const fetchAnalytics =
-  async () => {
-
+  const fetchAnalytics = async () => {
     try {
-
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      const res =
-        await API.get(
-          "/admin/dashboard",
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
+      const res = await API.get("/admin/dashboard");
       setData(res.data);
-
     } catch (err) {
-
-      console.log(
-        "Analytics Error:",
-        err
-      );
-
+      console.log("Analytics Error:", err);
+      window.addToast?.("Failed to load dashboard analytics", "error");
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   if (loading) {
-
-    return <h2>Loading...</h2>;
-
+    return (
+      <AdminLayout>
+        <Loading fullPage={false} />
+      </AdminLayout>
+    );
   }
 
   if (!data) {
-
     return (
-      <h2>
-        Failed to load dashboard
-      </h2>
+      <AdminLayout>
+        <div className="admin-dashboard error-state">
+          <h2>❌ Failed to load dashboard</h2>
+          <p>Please try refreshing the page</p>
+          <button className="btn-primary" onClick={fetchAnalytics}>
+            Retry
+          </button>
+        </div>
+      </AdminLayout>
     );
-
   }
 
+  const metrics = [
+    {
+      title: "Total Users",
+      value: data.totalUsers || 0,
+      icon: "👥",
+      color: "primary",
+      trend: "+12% this month",
+    },
+    {
+      title: "Total Courses",
+      value: data.totalCourses || 0,
+      icon: "📚",
+      color: "success",
+      trend: "+3 new courses",
+    },
+    {
+      title: "Enrollments",
+      value: data.totalEnrollments || 0,
+      icon: "📝",
+      color: "info",
+      trend: "+24% increase",
+    },
+    {
+      title: "Revenue",
+      value: `₹${data.totalRevenue || 0}`,
+      icon: "💰",
+      color: "warning",
+      trend: "+18% growth",
+    },
+    {
+      title: "Completed Courses",
+      value: data.completedCourses || 0,
+      icon: "✅",
+      color: "success",
+      trend: "87% completion",
+    },
+    {
+      title: "Active Students",
+      value: data.activeStudents || 0,
+      icon: "🎓",
+      color: "primary",
+      trend: "This week",
+    },
+  ];
+
   return (
-
     <AdminLayout>
-
       <div className="admin-dashboard">
-
-        <h1>
-          LMS Analytics Dashboard
-        </h1>
-
-        <div className="analytics-grid">
-
-          <div className="analytics-card">
-
-            <h2>
-              {data.totalUsers}
-            </h2>
-
-            <p>
-              Total Users
-            </p>
-
+        <div className="dashboard-header">
+          <div>
+            <h1>📊 Analytics Dashboard</h1>
+            <p>Welcome back! Here's your LMS overview</p>
           </div>
-
-          <div className="analytics-card">
-
-            <h2>
-              {data.totalCourses}
-            </h2>
-
-            <p>
-              Total Courses
-            </p>
-
-          </div>
-
-          <div className="analytics-card">
-
-            <h2>
-              {data.totalEnrollments}
-            </h2>
-
-            <p>
-              Total Enrollments
-            </p>
-
-          </div>
-
-          <div className="analytics-card">
-
-            <h2>
-              ₹{data.totalRevenue}
-            </h2>
-
-            <p>
-              Revenue
-            </p>
-
-          </div>
-
-          <div className="analytics-card">
-
-            <h2>
-              {data.completedCourses}
-            </h2>
-
-            <p>
-              Completed Courses
-            </p>
-
-          </div>
-
+          <button className="btn-secondary" onClick={fetchAnalytics}>
+            🔄 Refresh
+          </button>
         </div>
 
-        {/* RECENT */}
+        {/* METRICS GRID */}
+        <div className="metrics-grid">
+          {metrics.map((metric, index) => (
+            <div
+              key={index}
+              className={`metric-card metric-${metric.color}`}
+            >
+              <div className="metric-icon">{metric.icon}</div>
+              <div className="metric-content">
+                <p className="metric-title">{metric.title}</p>
+                <h3 className="metric-value">{metric.value}</h3>
+                <span className="metric-trend">{metric.trend}</span>
+              </div>
+            </div>
+          ))}
+        </div>
 
-        <div className="recent-box">
+        {/* ANALYTICS SECTION */}
+        <div className="analytics-section">
+          <div className="section-title">
+            <h2>📈 Key Insights</h2>
+          </div>
 
-          <h2>
-            Recent Enrollments
-          </h2>
-
-          {data.recentEnrollments?.map(
-            (item) => (
-
-              <div
-                key={item._id}
-                className="recent-item"
-              >
-
-                <h4>
-                  {item.userId?.name}
-                </h4>
-
-                <p>
-                  {item.courseId?.title}
-                </p>
-
+          <div className="insights-grid">
+            {/* RECENT ENROLLMENTS */}
+            <div className="insight-card">
+              <div className="card-header">
+                <h3>Recent Enrollments</h3>
+                <span className="badge-count">{data.recentEnrollments?.length || 0}</span>
               </div>
 
-            )
-          )}
+              <div className="insight-list">
+                {data.recentEnrollments && data.recentEnrollments.length > 0 ? (
+                  data.recentEnrollments.map((item) => (
+                    <div key={item._id} className="list-item">
+                      <div className="item-info">
+                        <p className="item-title">{item.userId?.name}</p>
+                        <p className="item-subtitle">{item.courseId?.title}</p>
+                      </div>
+                      <span className="item-badge">New</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="empty-message">No recent enrollments</p>
+                )}
+              </div>
+            </div>
 
+            {/* RECENT USERS */}
+            <div className="insight-card">
+              <div className="card-header">
+                <h3>Recent Users</h3>
+                <span className="badge-count">{data.recentUsers?.length || 0}</span>
+              </div>
+
+              <div className="insight-list">
+                {data.recentUsers && data.recentUsers.length > 0 ? (
+                  data.recentUsers.map((user) => (
+                    <div key={user._id} className="list-item">
+                      <div className="item-info">
+                        <p className="item-title">{user.name}</p>
+                        <p className="item-subtitle">{user.email}</p>
+                      </div>
+                      <span className="item-status">{user.role || "User"}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="empty-message">No new users</p>
+                )}
+              </div>
+            </div>
+
+            {/* TOP COURSES */}
+            <div className="insight-card">
+              <div className="card-header">
+                <h3>Top Courses</h3>
+                <span className="badge-count">{data.topCourses?.length || 0}</span>
+              </div>
+
+              <div className="insight-list">
+                {data.topCourses && data.topCourses.length > 0 ? (
+                  data.topCourses.map((course, idx) => (
+                    <div key={idx} className="list-item">
+                      <div className="item-info">
+                        <p className="item-title">{course.title}</p>
+                        <p className="item-subtitle">{course.enrolled || 0} students</p>
+                      </div>
+                      <span className="item-score">{course.rating || 0}⭐</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="empty-message">No course data</p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
+        {/* QUICK ACTIONS */}
+        <div className="quick-actions">
+          <h2>⚡ Quick Actions</h2>
+          <div className="action-buttons">
+            <button className="btn-primary">
+              ➕ Create Course
+            </button>
+            <button className="btn-secondary">
+              👥 Manage Users
+            </button>
+            <button className="btn-success">
+              📊 View Reports
+            </button>
+            <button className="btn-info">
+              ⚙️ Settings
+            </button>
+          </div>
+        </div>
       </div>
-
     </AdminLayout>
-
   );
-
 }

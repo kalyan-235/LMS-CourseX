@@ -4,10 +4,23 @@ export default function ProtectedRoute({
   children,
 }) {
 
-  const role =
-    localStorage.getItem("role");
+  const user =
+    JSON.parse(
+      localStorage.getItem("user")
+    );
 
-  return role === "admin"
-    ? children
-    : <Navigate to="/login" />;
+  if (
+    !user ||
+    !user.isAdmin
+  ) {
+
+    return (
+      <Navigate
+        to="/login"
+      />
+    );
+
+  }
+
+  return children;
 }

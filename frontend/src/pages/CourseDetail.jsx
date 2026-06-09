@@ -1,21 +1,13 @@
-import {
-  useState,
-  useEffect,
-} from "react";
-
-import {
-  useParams,
-} from "react-router-dom";
-
+import {useState,useEffect,} from "react";
+import {useParams,} from "react-router-dom";
 import API from "../api/axios";
-
 import Overview from "../components/Overview";
-import CurriculumModule from "../components/CurriculumModule";
 import InstructorCard from "../components/InstructorCard";
 import ReviewSection from "../components/ReviewSection";
 import Notes from "../components/Notes";
 import Certificate from "../components/Certificate";
 import Quiz from "../components/Quiz";
+import PDFModal from "../components/PDFModal";
 
 export default function CourseDetail() {
 
@@ -28,20 +20,19 @@ export default function CourseDetail() {
   const [enrollmentData, setEnrollmentData] =
     useState(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] =useState(true);
 
-  const [activeTab, setActiveTab] =
-    useState("overview");
+  const [activeTab, setActiveTab] = useState("overview");
 
-  const [open, setOpen] =
-    useState(false);
+  const [selectedPdf, setSelectedPdf] = useState(null);
 
-  const [selectedPdf, setSelectedPdf] =
-    useState(null);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
-  const [isEnrolled, setIsEnrolled] =
-    useState(false);
+  const [open, setOpen] = useState(false);
+
+  const [showCertificate, setShowCertificate] = useState(false);
+
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
 
@@ -49,7 +40,41 @@ export default function CourseDetail() {
 
     checkEnrollment();
 
+    fetchUserName();
+
   }, [id]);
+
+// FETCH USER NAME
+
+  const fetchUserName = async () => {
+
+    try {
+
+      const token =
+        localStorage.getItem("token");
+
+      if (!token) return;
+
+      const res =
+        await API.get(
+          "/users/profile",
+          {
+            headers:{
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      setUserName(res.data.name || res.data.userName);
+
+    } catch (err) {
+
+      console.log(err);
+
+    }
+
+  };
 
 // FETCH SINGLE COURSE
 
@@ -89,7 +114,7 @@ export default function CourseDetail() {
 
       const res =
         await API.get(
-          "/enrollment/my-courses",
+          "/enrollments/my-courses",
           {
             headers:{
               Authorization:
@@ -140,7 +165,7 @@ export default function CourseDetail() {
 
       await API.post(
 
-        "/enrollment/enroll",
+        "/enrollments/enroll",
 
         {
           courseId:id,
@@ -173,7 +198,7 @@ export default function CourseDetail() {
 
   };
 
-  const updateCourseProgress =async () => {
+  const updateCourseProgress = async () => {
 
     try {
 
@@ -195,7 +220,7 @@ export default function CourseDetail() {
 
       await API.put(
 
-        `/enrollment/progress/${enrollmentData._id}`,
+        `/enrollments/progress/${enrollmentData._id}`,
 
         {
           progress:newProgress,
@@ -235,38 +260,84 @@ const handleVideoOpen = async () => {
 
   }
 
-  setOpen(true);
+  // PDF close cheyyi
+  setSelectedPdf(null);
 
-  // UPDATE PROGRESS
+  // Video open cheyyi
+  setOpen(true);
 
   await updateCourseProgress();
 
 };
 
-
-
   // PDF OPEN
 
-  const handlePdfOpen = (file) => {
+const handlePdfOpen = (file, title) => {
 
-    if (!isEnrolled) {
+  if (!isEnrolled) {
 
-      alert(
-        "Please enroll to access PDFs"
-      );
-
-      return;
-    }
-
-    setSelectedPdf(
-
-      selectedPdf === file
-        ? null
-        : file
-
+    alert(
+      "Please enroll to access PDFs"
     );
 
+    return;
+
+  }
+
+  // Video close cheyyi
+  setOpen(false);
+
+  // PDF open cheyyi
+  setSelectedPdf({
+    file,
+    title,
+  });
+
+};
+
+  const generateCertificate = async()=>{
+   try{
+  
+    const token =
+     localStorage.getItem("token");
+  
+    await API.post(
+    
+     "/certificates/issue",
+    
+     {
+      courseId:course._id
+     },
+    
+     {
+      headers:{
+       Authorization:
+       `Bearer ${token}`
+      }
+     }
+    
+    );
+  
+    setShowCertificate(true);
+
+    setActiveTab("certificate");
+  
+    alert(
+     "Certificate Generated Successfully!"
+    );
+  
+   }catch(error){
+  
+    console.log(error);
+
+    alert(
+      "Error generating certificate"
+    );
+  
+   }
+  
   };
+
 
   if (loading) {
 
@@ -284,120 +355,103 @@ const handleVideoOpen = async () => {
 
     <div className="course-detail-page">
 
-      {/* VIDEO PLAYER */}
-
       {open && (
-
+      
         <div className="video-modal">
-
+        
           <div className="video-container">
-
+      
             <button
               className="close-video"
-              onClick={() =>
-                setOpen(false)
-              }
+              onClick={() => setOpen(false)}
             >
               ✕
             </button>
-
+      
             <iframe
               src={course.video}
               title="Course Video"
-              width="100%"
-              height="500"
-              frameBorder="0"
               allowFullScreen
-            ></iframe>
+            />
+      
+          </div>
+      
+        </div>
+      
+      )}
+
+      {!open && (
+
+        <div className="detail-card">
+        
+          <div className="detail-image">
+
+            <img
+              src={course.image}
+              alt={course.title}
+            />
+
+            <button
+              className="video-play-btn"
+              onClick={handleVideoOpen}
+            >
+              {isEnrolled ? "▶" : "🔒"}
+            </button>
 
           </div>
 
+          <div className="detail-content">
+
+            <div className="detail-category">
+              {course.category}
+            </div>
+
+            <h1 className="detail-title">
+              {course.title}
+            </h1>
+
+            <div className="detail-author">
+              By {course.author}
+            </div>
+
+            <div className="detail-rating">
+              ⭐ {course.rating}
+            </div>
+
+            {!isEnrolled && (
+              <div className="price-box">
+              
+                <div>
+                  <div className="course-price">
+                    {course.price}
+                  </div>
+            
+                  <div className="old-price">
+                    {course.oldprice}
+                  </div>
+                </div>
+            
+                <button
+                  className="enroll-btn"
+                  onClick={handleEnroll}
+                >
+                  Enroll Now
+                </button>
+            
+              </div>
+            )}
+
+            {isEnrolled && (
+              <div className="already-enrolled">
+                ✅ Already Enrolled
+              </div>
+            )}
+
+          </div>
+          
         </div>
 
       )}
-
-      {/* COURSE TOP */}
-
-      <div className="detail-card">
-
-        <div className="detail-image">
-
-          <img
-            src={course.image}
-            alt={course.title}
-          />
-
-          <button
-            className="video-play-btn"
-            onClick={handleVideoOpen}
-          >
-
-            {isEnrolled ? "▶" : "🔒"}
-
-          </button>
-
-        </div>
-
-        <div className="detail-content">
-
-          <div className="detail-category">
-            {course.category}
-          </div>
-
-          <h1 className="detail-title">
-            {course.title}
-          </h1>
-
-          <div className="detail-author">
-            By {course.author}
-          </div>
-
-          <div className="detail-rating">
-            ⭐ {course.rating}
-          </div>
-
-          {!isEnrolled && (
-
-            <div className="price-box">
-
-              <div>
-
-                <div className="course-price">
-                  {course.price}
-                </div>
-
-                <div className="old-price">
-                  {course.oldprice}
-                </div>
-
-              </div>
-
-              <button
-                className="enroll-btn"
-                onClick={handleEnroll}
-              >
-                Enroll Now
-              </button>
-
-            </div>
-
-          )}
-
-          {isEnrolled && (
-
-            <div className="already-enrolled">
-
-              ✅ Already Enrolled
-
-            </div>
-
-          )}
-
-        </div>
-
-      </div>
-
-      {/* TABS */}
 
       <div className="course-tabs">
 
@@ -453,6 +507,21 @@ const handleVideoOpen = async () => {
           Reviews
         </div>
 
+        {isEnrolled && enrollmentData?.progress === 100 && (
+          <div
+            className={`course-tab ${
+              activeTab === "certificate"
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              setActiveTab("certificate")
+            }
+          >
+            🏆 Certificate
+          </div>
+        )}
+
       </div>
 
       {/* TAB CONTENT */}
@@ -479,86 +548,66 @@ const handleVideoOpen = async () => {
 
           <div className="tab-box">
 
-            {course.curriculum?.map(
-              (module) => (
-
-                <CurriculumModule
-                  key={module._id}
-                  title={module.title}
-                  duration={module.duration}
-                  completed={module.completed}
-                  lessons={module.lessons}
-                />
-
-              )
-            )}
-
             {/* PDF SECTION */}
 
             <div className="pdf-section">
 
               <h2 className="pdf-heading">
-                Course PDFs
+                📚 Course PDFs
               </h2>
 
-              {course.pdfs?.map(
-                (pdf) => (
-
-                  <div key={pdf._id}>
+              {!course.pdfs || course.pdfs.length === 0 ? (
+                <div className="no-pdf-message">
+                  <p>No PDFs available for this course</p>
+                </div>
+              ) : (
+                course.pdfs?.map(
+                  (pdf) => (
 
                     <div
-                      className="pdf-card"
-                      onClick={() =>
-                        handlePdfOpen(
-                          pdf.file
-                        )
-                      }
+                      key={pdf._id}
+                      className="pdf-item"
                     >
 
-                      <div className="pdf-icon">
+                      <div
+                        className="pdf-card"
+                        onClick={() =>
+                          handlePdfOpen(
+                            pdf.file,
+                            pdf.title
+                          )
+                        }
+                      >
 
-                        {isEnrolled
-                          ? "📄"
-                          : "🔒"}
-
-                      </div>
-
-                      <div className="pdf-info">
-
-                        <h4>
-                          {pdf.title}
-                        </h4>
-
-                        <p>
+                        <div className="pdf-icon">
 
                           {isEnrolled
-                            ? "Click to Open PDF"
-                            : "Enroll to access"}
+                            ? "📄"
+                            : "🔒"}
 
-                        </p>
+                        </div>
+
+                        <div className="pdf-info">
+
+                          <h4>
+                            {pdf.title}
+                          </h4>
+
+                          <p>
+
+                            {isEnrolled
+                              ? "Click to view PDF"
+                              : "Enroll to access"}
+
+                          </p>
+
+                        </div>
 
                       </div>
 
                     </div>
 
-                    {selectedPdf ===
-                      pdf.file && (
-
-                      <div className="pdf-viewer">
-
-                        <iframe
-                          src={pdf.file}
-                          title="PDF"
-                          width="100%"
-                          height="600"
-                        ></iframe>
-
-                      </div>
-
-                    )}
-
-                  </div>
-
+                  )
                 )
               )}
 
@@ -627,17 +676,57 @@ const handleVideoOpen = async () => {
 
         {/* CERTIFICATE */}
 
-        {course.progress === 100 &&
-          isEnrolled && (
+        {activeTab === "certificate" && isEnrolled && (
 
-          <Certificate
-            userName="Kalyan"
-            course={course}
-          />
+          <div className="tab-box">
+
+            {showCertificate && userName ? (
+
+              <Certificate
+                userName={userName}
+                course={course}
+              />
+
+            ) : (
+
+              <div className="certificate-prompt">
+
+                <h2>🎓 Course Complete!</h2>
+
+                <p>
+                  Congratulations on completing this course!
+                </p>
+
+                <button
+                  className="certificate-btn"
+                  onClick={generateCertificate}
+                >
+                  📜 Generate Certificate
+                </button>
+
+              </div>
+
+            )}
+
+          </div>
 
         )}
 
       </div>
+
+      {/* PDF MODAL */}
+
+      {selectedPdf && (
+
+        <PDFModal
+          pdfFile={selectedPdf.file}
+          pdfTitle={selectedPdf.title}
+          onClose={() =>
+            setSelectedPdf(null)
+          }
+        />
+
+      )}
 
     </div>
 

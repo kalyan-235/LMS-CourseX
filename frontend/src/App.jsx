@@ -1,4 +1,8 @@
 import { Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+
+import Toast from "./components/Toast";
+import DarkModeToggle from "./components/DarkModeToggle";
 
 import Sidebar from "./components/Sidebar";
 // import Topbar from "./components/Topbar";
@@ -12,6 +16,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 import AdminDashboard from "./admin/pages/AdminDashboard";
 import AdminCourses from "./admin/pages/AdminCourses";
@@ -23,6 +29,36 @@ import AdminSettings from "./admin/pages/AdminSettings";
 export default function App() {
 
   const location = useLocation();
+  
+  // THEME INITIALIZATION
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "Light";
+    applyTheme(savedTheme);
+  }, []);
+
+  const applyTheme = (themeName) => {
+    const root = document.documentElement;
+    
+    if (themeName === "Dark") {
+      root.style.setProperty("--bg-primary", "#0f172a");
+      root.style.setProperty("--bg-secondary", "#1e293b");
+      root.style.setProperty("--bg-tertiary", "#334155");
+      root.style.setProperty("--text-primary", "#f1f5f9");
+      root.style.setProperty("--text-secondary", "#cbd5e1");
+      root.style.setProperty("--border-color", "#475569");
+      document.body.classList.add("dark-mode");
+      document.body.classList.remove("light-mode");
+    } else {
+      root.style.setProperty("--bg-primary", "#ffffff");
+      root.style.setProperty("--bg-secondary", "#f5f7fb");
+      root.style.setProperty("--bg-tertiary", "#f3f4f6");
+      root.style.setProperty("--text-primary", "#111827");
+      root.style.setProperty("--text-secondary", "#6b7280");
+      root.style.setProperty("--border-color", "#e5e7eb");
+      document.body.classList.add("light-mode");
+      document.body.classList.remove("dark-mode");
+    }
+  };
   
   const isAdminRoute =
   location.pathname.startsWith("/admin");
@@ -149,6 +185,19 @@ return (
                 path="/register"
                 element={<Register />}
               />
+              <Route
+                 path="/forgot-password"
+                 element={
+                  <ForgotPassword />
+                 }
+                />
+
+                <Route
+                 path="/reset-password"
+                 element={
+                  <ResetPassword />
+                 }
+                />
 
             </Routes>
 
@@ -159,6 +208,9 @@ return (
       </div>
 
     )}
+
+    <Toast />
+    <DarkModeToggle />
 
   </>
 

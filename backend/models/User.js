@@ -24,6 +24,17 @@ new mongoose.Schema(
       required:true,
       minlength:6,
     },
+    profileImage:{
+      type:String,
+      default:"",
+    },
+    otp:{
+       type:String
+      },
+      
+      otpExpiry:{
+       type:Date
+      },
 
     isAdmin:{
       type:Boolean,

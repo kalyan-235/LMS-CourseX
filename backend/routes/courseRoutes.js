@@ -5,6 +5,7 @@ import {
   getSingleCourse,
   createCourse,
   updateCourse,
+  updateCourseQuiz,
   deleteCourse,
 } from "../controllers/courseController.js";
 
@@ -16,6 +17,11 @@ const router = express.Router();
 router.get("/", getCourses);
 
 router.get("/:id", getSingleCourse);
+router.put(
+ "/:id/quiz",
+ verifyToken,
+ updateCourseQuiz
+);
 
 router.post(
   "/",

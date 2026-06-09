@@ -6,9 +6,9 @@
   width:240px;
   height:100vh;
 
-  background:#ffffff;
+  background:var(--bg-primary);
 
-  border-right:1px solid #e5e7eb;
+  border-right:1px solid var(--border-color);
 
   padding:24px 18px;
 
@@ -37,7 +37,7 @@
   width:42px;
   height:42px;
 
-  background:#4F46E5;
+  background:var(--accent-color);
   color:white;
 
   border-radius:12px;
@@ -53,7 +53,7 @@
 .logo-tx{
   font-size:22px;
   font-weight:700;
-  color:#111827;
+  color:var(--text-primary);
 }
 
 /* NAVIGATION */
@@ -65,7 +65,7 @@
 
 .nlabel{
   font-size:13px;
-  color:#9ca3af;
+  color:var(--text-secondary);
 
   margin-bottom:12px;
   margin-top:12px;
@@ -85,7 +85,7 @@
 
   text-decoration:none;
 
-  color:#374151;
+  color:var(--text-secondary);
 
   font-size:15px;
   font-weight:500;
@@ -97,19 +97,19 @@
 }
 
 .ni:hover{
-  background:#f3f4f6;
-  color:#111827;
+  background:var(--bg-secondary);
+  color:var(--text-primary);
 }
 
 .ni.active{
-  background:#4F46E5;
+  background:var(--accent-color);
   color:white;
 
   box-shadow:0 4px 12px rgba(79,70,229,0.25);
 }
 
 .ni.active:hover{
-  background:#4F46E5;
+  background:var(--accent-color);
   color:white;
 }
 
@@ -126,7 +126,7 @@
     left:0;
 
     border-right:none;
-    border-bottom:1px solid #e5e7eb;
+    border-bottom:1px solid var(--border-color);
 
     padding:14px;
 

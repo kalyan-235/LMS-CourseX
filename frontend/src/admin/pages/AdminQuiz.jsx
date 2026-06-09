@@ -1,79 +1,69 @@
-import { useState } from "react";
-
-import AdminSidebar
-from "../components/AdminSidebar";
-
-// import AdminTopbar
-// from "../components/AdminTopbar";
+import { useState, useEffect } from "react";
+import API from "../../api/axios";
+import AdminLayout from "../layouts/AdminLayout";
 
 export default function AdminQuiz() {
 
-  const [quizzes, setQuizzes] =
-    useState([
+  const [courses, setCourses] = useState([]);
+  const [editingQuiz, setEditingQuiz] = useState(null);
 
-      {
-        id:1,
-        title:"React Basics Quiz",
-        course:"React Frontend Mastery",
-        students:120,
-        status:"Active",
-
-        questions:[
-          {
-            question:"What is JSX?",
-            options:[
-              "JavaScript XML",
-              "Java",
-              "React CSS",
-              "Node JS",
-            ],
-          },
-        ],
-      },
-
-      {
-        id:2,
-        title:"MongoDB Quiz",
-        course:"MongoDB Database Course",
-        students:85,
-        status:"Active",
-
-        questions:[
-          {
-            question:"MongoDB is ?",
-            options:[
-              "SQL",
-              "NoSQL",
-              "Frontend",
-              "Language",
-            ],
-          },
-        ],
-      },
-
-    ]);
+  const [selectedCourse, setSelectedCourse] =
+    useState(null);
 
   const [showModal, setShowModal] =
     useState(false);
 
-  const [editingQuiz, setEditingQuiz] =
-    useState(null);
-
-  const [quizTitle, setQuizTitle] =
-    useState("");
-
-  const [courseName, setCourseName] =
-    useState("");
+  const [loading, setLoading] =
+    useState(false);
 
   const [questions, setQuestions] =
     useState([
       {
-        question:"",
-        options:["","","",""],
+        question: "",
+        options: ["", "", "", ""],
+        answer: "",
       },
     ]);
 
-  // HANDLE QUESTION
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+
+    try {
+
+      const res =
+        await API.get("/courses");
+
+      setCourses(res.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
+
+  const openQuizModal = (course) => {
+
+  setSelectedCourse(course);
+
+  setQuestions(
+    course.quiz?.length
+      ? course.quiz
+      : [
+          {
+            question: "",
+            options: ["", "", "", ""],
+            answer: "",
+          },
+        ]
+  );
+
+  setShowModal(true);
+};
 
   const handleQuestionChange = (
     index,
@@ -87,9 +77,8 @@ export default function AdminQuiz() {
       value;
 
     setQuestions(updated);
-  };
 
-  // HANDLE OPTIONS
+  };
 
   const handleOptionChange = (
     qIndex,
@@ -104,363 +93,170 @@ export default function AdminQuiz() {
       .options[oIndex] = value;
 
     setQuestions(updated);
+
   };
 
-  // ADD QUESTION
+  const handleAnswerChange = (
+    index,
+    value
+  ) => {
+
+    const updated =
+      [...questions];
+
+    updated[index].answer =
+      value;
+
+    setQuestions(updated);
+
+  };
 
   const addQuestion = () => {
 
-    const lastQuestion =
-      questions[
-        questions.length - 1
-      ];
-
-    const allOptionsFilled =
-      lastQuestion.options.every(
-        (option) =>
-          option.trim() !== ""
-      );
-
-    if (
-      lastQuestion.question.trim() === "" ||
-      !allOptionsFilled
-    ) {
-
-      alert(
-        "Fill question and all 4 options first"
-      );
-
-      return;
-    }
-
     setQuestions([
-
       ...questions,
-
       {
-        question:"",
-        options:["","","",""],
+        question: "",
+        options: ["", "", "", ""],
+        answer: "",
       },
-
     ]);
+
   };
 
-  // REMOVE QUESTION
-
-  const removeQuestion = (index) => {
+  const removeQuestion = (
+    index
+  ) => {
 
     if (
       questions.length === 1
     ) {
 
-      alert(
-        "At least one question required"
-      );
-
       return;
+
     }
 
     const updated =
       questions.filter(
-        (_,i) => i !== index
+        (_, i) =>
+          i !== index
       );
 
     setQuestions(updated);
+
   };
 
-  // SAVE QUIZ
+  const saveQuiz = async () => {
 
-  const saveQuiz = () => {
+    try {
 
-    if (
-      quizTitle.trim() === "" ||
-      courseName.trim() === ""
-    ) {
+      setLoading(true);
+
+      await API.put(
+
+        `/courses/${selectedCourse._id}/quiz`,
+
+        {
+          quiz: questions,
+        }
+
+      );
 
       alert(
-        "Fill all fields"
+        "Quiz Saved Successfully"
       );
 
-      return;
-    }
+      setShowModal(false);
 
-    // VALIDATE QUESTIONS
+      fetchCourses();
 
-    for (
-      let i = 0;
-      i < questions.length;
-      i++
-    ) {
+    } catch (error) {
 
-      const q =
-        questions[i];
+      console.log(error);
 
-      const allOptionsFilled =
-        q.options.every(
-          (option) =>
-            option.trim() !== ""
-        );
-
-      if (
-        q.question.trim() === "" ||
-        !allOptionsFilled
-      ) {
-
-        alert(
-          `Question ${i + 1} is incomplete`
-        );
-
-        return;
-      }
-    }
-
-    const newQuiz = {
-
-      id:
-        editingQuiz
-          ? editingQuiz.id
-          : Date.now(),
-
-      title:quizTitle,
-
-      course:courseName,
-
-      students:
-        editingQuiz
-          ? editingQuiz.students
-          : 0,
-
-      status:"Active",
-
-      questions:questions,
-    };
-
-    // EDIT
-
-    if (editingQuiz) {
-
-      const updatedQuiz =
-        quizzes.map((quiz) =>
-
-          quiz.id === editingQuiz.id
-
-            ? newQuiz
-
-            : quiz
-        );
-
-      setQuizzes(updatedQuiz);
-    }
-
-    // ADD
-
-    else {
-
-      setQuizzes([
-        ...quizzes,
-        newQuiz,
-      ]);
-    }
-
-    // RESET
-
-    setQuizTitle("");
-
-    setCourseName("");
-
-    setQuestions([
-      {
-        question:"",
-        options:["","","",""],
-      },
-    ]);
-
-    setEditingQuiz(null);
-
-    setShowModal(false);
-  };
-
-  // DELETE QUIZ
-
-  const deleteQuiz = (id) => {
-
-    const filteredQuiz =
-      quizzes.filter(
-        (quiz) =>
-          quiz.id !== id
+      alert(
+        "Quiz Save Failed"
       );
 
-    setQuizzes(filteredQuiz);
-  };
+    } finally {
 
-  // EDIT QUIZ
+      setLoading(false);
 
-  const editQuiz = (quiz) => {
+    }
 
-    setEditingQuiz(quiz);
-
-    setQuizTitle(quiz.title);
-
-    setCourseName(quiz.course);
-
-    setQuestions(
-      quiz.questions
-    );
-
-    setShowModal(true);
   };
 
   return (
 
-    <div className="admin-layout">
+    <AdminLayout>
 
-      <AdminSidebar />
+      <div className="admin-quiz-page">
 
-      <div className="admin-content">
+        {/* HEADER */}
 
-        {/* <AdminTopbar /> */}
+        <div className="admin-quiz-header">
 
-        <div className="admin-quiz-page">
+          <h2>
+            Quiz Management
+          </h2>
 
-          {/* HEADER */}
-
-          <div className="admin-quiz-header">
-
-            <h2>
-              Quiz Management
-            </h2>
-
-            <button
-              className="add-quiz-btn"
-              onClick={() => {
-              
-                // RESET ALL FIELDS
-              
-                setEditingQuiz(null);
-              
-                setQuizTitle("");
-              
-                setCourseName("");
-              
-                setQuestions([
-                  {
-                    question:"",
-                    options:["","","",""],
-                  },
-                ]);
-              
-                setShowModal(true);
-              }}
+          <button
+            className="add-quiz-btn"
+            onClick={() => {
+              setSelectedCourse(null);
+              setQuestions([
+                {
+                  question: "",
+                  options: ["", "", "", ""],
+                  answer: "",
+                },
+              ]);
+              setShowModal(true);
+            }}
+          >
+            + Add New Quiz
+          </button>
+          {courses.map((course) => (
+          
+            <div
+              className="quiz-card"
+              key={course._id}
             >
             
-              + Add Quiz
-            
-            </button>
+              <img
+                src={course.image}
+                alt={course.title}
+                className="quiz-course-image"
+              />
 
-          </div>
-
-          {/* QUIZ GRID */}
-
-          <div className="quiz-grid">
-
-            {quizzes.map((quiz) => (
-
-              <div
-                className="quiz-card"
-                key={quiz.id}
+              <h3>
+                {course.title}
+              </h3>
+          
+              <p>
+                {course.category}
+              </p>
+          
+              <p>
+                Questions:
+                {" "}
+                {course.quiz?.length || 0}
+              </p>
+          
+              <button
+                className="edit-quiz-btn"
+                onClick={() =>
+                  openQuizModal(course)
+                }
               >
+              
+                Manage Quiz
+              
+              </button>
+              
+            </div>
 
-                <div className="quiz-top">
-
-                  <div className="quiz-icon">
-                    📝
-                  </div>
-
-                  <span className="quiz-status">
-
-                    {quiz.status}
-
-                  </span>
-
-                </div>
-
-                <h3 className="quiz-title">
-
-                  {quiz.title}
-
-                </h3>
-
-                <p className="quiz-course">
-
-                  {quiz.course}
-
-                </p>
-
-                <div className="quiz-info">
-
-                  <div className="quiz-info-box">
-
-                    <h4>
-                      {
-                        quiz.questions.length
-                      }
-                    </h4>
-
-                    <span>
-                      Questions
-                    </span>
-
-                  </div>
-
-                  <div className="quiz-info-box">
-
-                    <h4>
-                      {quiz.students}
-                    </h4>
-
-                    <span>
-                      Students
-                    </span>
-
-                  </div>
-
-                </div>
-
-                {/* ACTIONS */}
-
-                <div className="quiz-actions">
-
-                  <button
-                    className="edit-quiz-btn"
-                    onClick={() =>
-                      editQuiz(quiz)
-                    }
-                  >
-
-                    Edit
-
-                  </button>
-
-                  <button
-                    className="delete-quiz-btn"
-                    onClick={() =>
-                      deleteQuiz(
-                        quiz.id
-                      )
-                    }
-                  >
-
-                    Delete
-
-                  </button>
-
-                </div>
-
-              </div>
-
-            ))}
-
-          </div>
+          ))}
 
         </div>
 
@@ -474,37 +270,66 @@ export default function AdminQuiz() {
 
           <div className="quiz-modal-box">
 
-            <h2>
+            <div className="quiz-modal-header">
 
-              {
-                editingQuiz
-                  ? "Edit Quiz"
-                  : "Add New Quiz"
-              }
+              <h2>
 
-            </h2>
+                {
+                  selectedCourse
+                    ? selectedCourse.title
+                    : "Add New Quiz"
+                }
 
-            <input
-              type="text"
-              placeholder="Quiz Title"
-              value={quizTitle}
-              onChange={(e) =>
-                setQuizTitle(
-                  e.target.value
-                )
-              }
-            />
+              </h2>
 
-            <input
-              type="text"
-              placeholder="Course Name"
-              value={courseName}
-              onChange={(e) =>
-                setCourseName(
-                  e.target.value
-                )
-              }
-            />
+              <button
+                className="close-modal-btn"
+                onClick={() => setShowModal(false)}
+              >
+                ✕
+              </button>
+
+            </div>
+
+            {/* COURSE SELECT FOR NEW QUIZ */}
+
+            {!selectedCourse && (
+
+              <div className="course-select-box">
+
+                <label>
+                  Select Course
+                </label>
+
+                <select
+                  onChange={(e) => {
+                    const course = courses.find(
+                      c => c._id === e.target.value
+                    );
+                    setSelectedCourse(course);
+                  }}
+                >
+
+                  <option value="">
+                    Choose a course...
+                  </option>
+
+                  {courses.map((course) => (
+
+                    <option
+                      key={course._id}
+                      value={course._id}
+                    >
+                      {course.title}
+                    </option>
+
+                  ))}
+
+                </select>
+
+              </div>
+
+            )}
 
             {/* QUESTIONS */}
 
@@ -568,12 +393,20 @@ export default function AdminQuiz() {
                           )
                         }
                       />
-
                     )
                   )}
-
+                  <input
+                    type="text"
+                    placeholder="Correct Answer"
+                    value={q.answer}
+                    onChange={(e) =>
+                      handleAnswerChange(
+                        qIndex,
+                        e.target.value
+                      )
+                    }
+                  />
                 </div>
-
               )
             )}
 
@@ -619,7 +452,7 @@ export default function AdminQuiz() {
 
       )}
 
-    </div>
+    </AdminLayout>
 
   );
 }

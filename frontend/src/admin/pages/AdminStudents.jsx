@@ -1,87 +1,65 @@
-import { useState } from "react";
-
+import { useState , useEffect} from "react";
+import API from "../../api/axios";
 import AdminLayout from "../layouts/AdminLayout";
+import "../css/adminstudents.css";
 
 export default function AdminStudents() {
 
-  const [search, setSearch] =
-    useState("");
+  const [students,setStudents] =
+useState([]);
 
-  const [students] = useState([
+  const [search, setSearch] = useState("");
 
-    {
-      id:1,
-      name:"Kalyan",
-      email:"kalyan@gmail.com",
-      course:"React Frontend Mastery",
-      progress:100,
-      hours:18,
-      status:"Completed",
-      quizScore:"92%",
-      streak:14,
-      online:true,
-      avatar:
-      "https://randomuser.me/api/portraits/men/32.jpg",
-    },
+  const [loading,setLoading] =
+  useState(true);
 
-    {
-      id:2,
-      name:"Teja",
-      email:"teja@gmail.com",
-      course:"MongoDB Database Course",
-      progress:40,
-      hours:9,
-      status:"Inactive",
-      quizScore:"68%",
-      streak:4,
-      online:false,
-      avatar:
-      "https://randomuser.me/api/portraits/men/45.jpg",
-    },
+  useEffect(()=>{
 
-    {
-      id:3,
-      name:"Ajay",
-      email:"ajay@gmail.com",
-      course:"Node JS Backend",
-      progress:75,
-      hours:28,
-      status:"Active",
-      quizScore:"88%",
-      streak:20,
-      online:true,
-      avatar:
-      "https://randomuser.me/api/portraits/men/11.jpg",
-    },
+   fetchStudents();
 
-    {
-      id:4,
-      name:"Ravi",
-      email:"ravi@gmail.com",
-      course:"JavaScript Basics",
-      progress:55,
-      hours:12,
-      status:"Active",
-      quizScore:"73%",
-      streak:7,
-      online:true,
-      avatar:
-      "https://randomuser.me/api/portraits/men/18.jpg",
-    },
+  },[]);
+  const fetchStudents =
+  async()=>{
 
-  ]);
+   try{
 
-  // SEARCH FILTER
+    const res =
+     await API.get(
+      "/users/students"
+     );
 
-  const filteredStudents =
-    students.filter((student) =>
-
-      student.name
-        .toLowerCase()
-        .includes(
-          search.toLowerCase()
-        )
+    setStudents(
+     res.data
     );
+
+   }catch(error){
+
+    console.log(error);
+
+   }finally{
+
+    setLoading(false);
+
+   }
+
+  };
+
+  const filteredStudents = students.filter((student) =>
+    student.userId?.name?.toLowerCase().includes(search.toLowerCase()) ||
+    student.userId?.email?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if(loading){
+
+   return (
+    <AdminLayout>
+     <h2>
+      Loading Students...
+     </h2>
+    </AdminLayout>
+   );
+
+  }
 
   return (
 
@@ -142,14 +120,14 @@ export default function AdminStudents() {
               {
                 students.filter(
                   (student) =>
-                    student.online
+                    student.completed === false
                 ).length
               }
 
             </h2>
 
             <span>
-              Online Students
+              Currently Learning
             </span>
 
           </div>
@@ -161,8 +139,7 @@ export default function AdminStudents() {
               {
                 students.filter(
                   (student) =>
-                    student.status ===
-                    "Completed"
+                    student.completed === true
                 ).length
               }
 
@@ -226,28 +203,23 @@ export default function AdminStudents() {
                         <div className="avatar-wrapper">
 
                           <img
-                            src={student.avatar}
-                            alt={student.name}
+                            src={student.userId?.profileImage || "https://via.placeholder.com/40"}
+                            alt={student.userId?.name}
                             className="student-avatar"
                           />
 
-                          {student.online && (
-
-                            <span className="online-dot"></span>
-
-                          )}
+                          {/* Online status not available in current data */}
 
                         </div>
 
                         <div>
 
                           <h4>
-                            {student.name}
+                            {student.userId?.name}
                           </h4>
 
                           <p>
-                            ID :
-                            {student.id}
+                            ID : {student._id}
                           </p>
 
                         </div>
@@ -257,85 +229,65 @@ export default function AdminStudents() {
                     </td>
 
                     {/* EMAIL */}
-
                     <td>
-                      {student.email}
+                      {student.userId?.email}
                     </td>
 
                     {/* COURSE */}
-
                     <td>
-                      {student.course}
+                      {student.courseId?.title}
                     </td>
 
                     {/* PROGRESS */}
-
                     <td>
-
                       <div className="progress-box">
-
                         <div className="progress-bar">
-
                           <div
                             className="progress-fill"
                             style={{
-                              width:
-                              `${student.progress}%`,
+                              width: `${student.progress}%`,
                             }}
                           ></div>
-
                         </div>
-
+                          
                         <span>
                           {student.progress}%
                         </span>
-
                       </div>
-
                     </td>
-
+                          
                     {/* QUIZ */}
-
                     <td>
-
                       <span className="quiz-score">
-
-                        📝 {student.quizScore}
-
+                        📝 {student.quizScore}%
                       </span>
-
                     </td>
-
-                    {/* STREAK */}
-
                     <td>
-
                       <span className="streak-box">
-
-                        🔥 {student.streak} Days
-
+                        🔥 {student.userId?.streak || 0} Days
                       </span>
-
                     </td>
-
+                          
                     {/* HOURS */}
-
                     <td>
-                      {student.hours}h
+                      {student.watchedHours}h
                     </td>
-
+                          
                     {/* STATUS */}
-
                     <td>
-
                       <span
-                        className={`student-status ${student.status.toLowerCase()}`}
+                        className={`student-status ${
+                          student.completed
+                            ? "completed"
+                            : "active"
+                        }`}
                       >
-
-                        {student.status}
-
+                        {
+                          student.completed
+                            ? "Completed"
+                            : "Learning"
+                        }
                       </span>
-
                     </td>
 
                     {/* ACTIONS */}

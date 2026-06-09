@@ -1,6 +1,8 @@
 
 import express from "express";
-
+import {
+  verifyAdmin,
+} from "../middlewares/adminMiddleware.js";
 import {
   getDashboardAnalytics,
 } from "../controllers/adminController.js";
@@ -15,6 +17,7 @@ express.Router();
 router.get(
   "/dashboard",
   verifyToken,
+  verifyAdmin,
   getDashboardAnalytics
 );
 
