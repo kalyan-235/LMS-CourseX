@@ -1,15 +1,14 @@
 
 import { useEffect, useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import API from "../../api/axios";
 import Loading from "../../components/Loading";
-
 import AdminLayout from "../layouts/AdminLayout";
 
 export default function AdminDashboard() {
-
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAnalytics();
@@ -87,7 +86,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Active Students",
-      value: data.activeStudents || 0,
+      value: data.activeStudents ?? data.totalEnrollments ?? 0,
       icon: "🎓",
       color: "primary",
       trend: "This week",
@@ -209,16 +208,16 @@ export default function AdminDashboard() {
         <div className="quick-actions">
           <h2>⚡ Quick Actions</h2>
           <div className="action-buttons">
-            <button className="btn-primary">
-              ➕ Create Course
+            <button className="btn-primary" onClick={() => navigate("/admin/courses")}>
+              ➕ Add Course
             </button>
-            <button className="btn-secondary">
-              👥 Manage Users
+            <button className="btn-secondary" onClick={() => navigate("/admin/students")}>
+              👥 Manage Students
             </button>
-            <button className="btn-success">
-              📊 View Reports
+            <button className="btn-success" onClick={() => navigate("/admin/payments")}>
+              💰 View Payments
             </button>
-            <button className="btn-info">
+            <button className="btn-info" onClick={() => navigate("/admin/settings")}>
               ⚙️ Settings
             </button>
           </div>

@@ -4,84 +4,49 @@ import {
 } from "react-router-dom";
 
 export default function AdminSidebar() {
-
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
   const logout = () => {
-
-    localStorage.removeItem(
-      "role"
-    );
-
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
-  return (
+  const navItems = [
+    { to: "/admin", label: "📊 Dashboard", end: true },
+    { to: "/admin/courses", label: "📚 Courses" },
+    { to: "/admin/students", label: "👨‍🎓 Students" },
+    { to: "/admin/quiz", label: "📝 Quiz" },
+    { to: "/admin/certificates", label: "🏆 Certificates" },
+    { to: "/admin/payments", label: "💳 Payments" },
+    { to: "/admin/settings", label: "⚙ Settings" },
+  ];
 
+  return (
     <div className="admin-sidebar">
+      <div className="admin-sidebar-logo">
+        <span>CourseX</span>
+        <small>Admin Panel</small>
+      </div>
 
       <nav className="admin-nav">
-
-        <NavLink
-          to="/admin"
-          className="admin-link"
-        >
-          📊 Dashboard
-        </NavLink>
-
-        <NavLink
-          to="/admin/courses"
-          className="admin-link"
-        >
-          📚 Courses
-        </NavLink>
-
-        <NavLink
-          to="/admin/students"
-          className="admin-link"
-        >
-          👨‍🎓 Students
-        </NavLink>
-
-        <NavLink
-          to="/admin/quiz"
-          className="admin-link"
-        >
-          📝 Quiz
-        </NavLink>
-
-        <NavLink
-          to="/admin/certificates"
-          className="admin-link"
-        >
-          🏆 Certificates
-        </NavLink>
-
-        <NavLink
-          to="/admin/payments"
-          className="admin-link"
-        >
-          💳 Payments
-        </NavLink>
-
-        <NavLink
-          to="/admin/settings"
-          className="admin-link"
-        >
-          ⚙ Settings
-        </NavLink>
-
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) =>
+              `admin-link ${isActive ? "active" : ""}`
+            }
+          >
+            {item.label}
+          </NavLink>
+        ))}
       </nav>
 
-      <button
-        className="logout-btn"
-        onClick={logout}
-      >
-        Logout
+      <button className="logout-btn" onClick={logout}>
+        ↪ Logout
       </button>
-
     </div>
-
   );
 }

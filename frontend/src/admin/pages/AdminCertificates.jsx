@@ -49,9 +49,7 @@ export default function AdminCertificates() {
 
       console.log(error);
 
-      alert(
-        "Failed to fetch certificates"
-      );
+      window.addToast?.("Failed to load certificates", "error");
 
     } finally {
 
@@ -88,17 +86,13 @@ export default function AdminCertificates() {
 
       setCertificates(filtered);
 
-      alert(
-        "Certificate deleted successfully"
-      );
+      window.addToast?.("Certificate deleted", "success");
 
     } catch (error) {
 
       console.log(error);
 
-      alert(
-        "Failed to delete certificate"
-      );
+      window.addToast?.("Failed to delete certificate", "error");
 
     }
 
@@ -110,18 +104,16 @@ export default function AdminCertificates() {
 
     try {
 
-      if (cert.certificatePath) {
+      if (cert.certificateUrl) {
 
         window.open(
-          cert.certificatePath,
+          cert.certificateUrl,
           "_blank"
         );
 
       } else {
 
-        alert(
-          "Certificate not available"
-        );
+        window.addToast?.("Certificate file not available", "warning");
 
       }
 
@@ -216,7 +208,7 @@ export default function AdminCertificates() {
 
                   <strong>
                     {new Date(
-                      item.issuedDate
+                      item.createdAt
                     ).toLocaleDateString()}
                   </strong>
 

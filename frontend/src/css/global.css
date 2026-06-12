@@ -45,15 +45,29 @@ body.light-mode {
   --border-color: #e5e7eb;
 }
 
-.app{
-  display:flex;
-  min-height:100vh;
+.app {
+  display: flex;
+  min-height: 100vh;
 }
 
-.main{
-  flex:1;
+.main {
+  flex: 1;
+  margin-left: 256px;
+  min-width: 0;
+  transition: margin-left 0.3s ease;
 }
 
-.content{
-  padding:25px;
+.content {
+  padding: 28px;
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+  }
+
+  .content {
+    padding: 70px 16px 24px;
+  }
 }

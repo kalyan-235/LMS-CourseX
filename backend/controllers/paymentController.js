@@ -29,19 +29,26 @@ export const createPaymentOrder = async (req, res) => {
       return res.status(404).json({ message: "Course not found" });
     }
 
+    // Check if already enrolled — no need to pay again
+    const existing = await Enrollment.findOne({ userId, courseId });
+    if (existing) {
+      return res.status(400).json({ message: "You are already enrolled in this course." });
+    }
+
     // Extract price (remove rupee symbol if present)
     const priceString = course.price.replace(/[^0-9]/g, "");
     const amount = Math.round(parseFloat(priceString) * 100); // Convert to paise
+
+    // Delete any stale pending payments for this user+course to avoid orderId conflicts on retry
+    await Payment.deleteMany({ userId, courseId, status: "pending" });
 
     let orderId;
 
     // Create order (Mock or Real)
     if (USE_MOCK_PAYMENT) {
-      // Mock mode: Generate fake order ID
       orderId = `order_mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       console.log("🎭 MOCK MODE - Generated order ID:", orderId);
     } else {
-      // Real mode: Create Razorpay order
       const order = await razorpay.orders.create({
         amount: amount,
         currency: "INR",
@@ -55,7 +62,7 @@ export const createPaymentOrder = async (req, res) => {
       orderId = order.id;
     }
 
-    // Save payment record in database
+    // Save fresh payment record
     const payment = await Payment.create({
       userId,
       courseId,

@@ -303,7 +303,7 @@ async ()=>{
       author,
       category,
       price,
-      oldprice:oldPrice,
+      oldPrice:oldPrice,
       video,
       description,
       image:imagePreview,
@@ -415,7 +415,7 @@ async(id)=>{
     setPrice(course.price);
 
     setOldPrice(
-      course.oldprice || ""
+      course.oldPrice || ""
     );
 
     setVideo(course.video);
@@ -472,7 +472,7 @@ async ()=>{
         author,
         category,
         price,
-        oldprice:oldPrice,
+        oldPrice:oldPrice,
         video,
         description,
         image:imagePreview,
@@ -651,31 +651,20 @@ async ()=>{
               )
             }
           >
-
-            <option value="">
-              Select Category
-            </option>
-
-            <option>
-              Frontend
-            </option>
-
-            <option>
-              Backend
-            </option>
-
-            <option>
-              Full Stack
-            </option>
-
-            <option>
-              Database
-            </option>
-
-            <option>
-              AI/ML
-            </option>
-
+            <option value="">Select Category</option>
+            <option value="Web Development">Web Development</option>
+            <option value="Frontend">Frontend</option>
+            <option value="Backend">Backend</option>
+            <option value="Data Science">Data Science</option>
+            <option value="Programming">Programming</option>
+            <option value="Design">Design</option>
+            <option value="DevOps">DevOps</option>
+            <option value="Cloud">Cloud</option>
+            <option value="Mobile">Mobile</option>
+            <option value="Cybersecurity">Cybersecurity</option>
+            <option value="Database">Database</option>
+            <option value="Full Stack">Full Stack</option>
+            <option value="AI/ML">AI/ML</option>
           </select>
 
           <input
@@ -949,7 +938,7 @@ async ()=>{
 
                 <div
                   className="course-card-admin"
-                  key={course.id}
+                  key={course._id}
                 >
 
                   <img
@@ -994,7 +983,7 @@ async ()=>{
                       <button
                         className="delete-course-btn"
                         onClick={() =>
-                          deleteCourse(course.id)
+                          deleteCourse(course._id)
                         }
                       >
                         Delete

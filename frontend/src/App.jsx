@@ -87,7 +87,7 @@ return (
         <Route
           path="/admin"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly>
               <AdminDashboard />
             </ProtectedRoute>
           }
@@ -96,7 +96,7 @@ return (
         <Route
           path="/admin/courses"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly>
               <AdminCourses />
             </ProtectedRoute>
           }
@@ -105,7 +105,7 @@ return (
         <Route
           path="/admin/students"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly>
               <AdminStudents />
             </ProtectedRoute>
           }
@@ -114,7 +114,7 @@ return (
         <Route
           path="/admin/quiz"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly>
               <AdminQuiz />
             </ProtectedRoute>
           }
@@ -123,7 +123,7 @@ return (
         <Route
           path="/admin/certificates"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly>
               <AdminCertificates />
             </ProtectedRoute>
           }
@@ -132,7 +132,7 @@ return (
         <Route
           path="/admin/payments"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly>
               <AdminPayments />
             </ProtectedRoute>
           }
@@ -141,7 +141,7 @@ return (
         <Route
           path="/admin/settings"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly>
               <AdminSettings />
             </ProtectedRoute>
           }

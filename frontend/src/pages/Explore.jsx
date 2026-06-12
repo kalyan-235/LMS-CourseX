@@ -1,42 +1,54 @@
-import { useState, useEffect } from "react";
-
+import { useState, useEffect, useRef } from "react";
 import CourseCard from "../components/CourseCard";
 import Loading from "../components/Loading";
 import Pagination from "../components/Pagination";
-
 import API from "../api/axios";
 
 export default function Explore() {
-
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("");
-  
   const [currentPage, setCurrentPage] = useState(1);
   const coursesPerPage = 12;
+  const debounceTimer = useRef(null);
+
+  // Debounce search — wait 400ms before firing API
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => setDebouncedSearch(val), 400);
+};
 
   const categories = [
-    "all",
-    "frontend",
-    "backend",
-    "database",
-    "fullstack",
+    { value: "all", label: "All Categories" },
+    { value: "Web Development", label: "Web Development" },
+    { value: "Frontend", label: "Frontend" },
+    { value: "Backend", label: "Backend" },
+    { value: "Data Science", label: "Data Science" },
+    { value: "Programming", label: "Programming" },
+    { value: "Design", label: "Design" },
+    { value: "DevOps", label: "DevOps" },
+    { value: "Cloud", label: "Cloud" },
+    { value: "Mobile", label: "Mobile" },
+    { value: "Cybersecurity", label: "Cybersecurity" },
+    { value: "Database", label: "Database" },
   ];
 
   // FETCH COURSES
   useEffect(() => {
     fetchCourses();
-  }, [search, category, sort]);
+  }, [debouncedSearch, category, sort]);
 
   const fetchCourses = async () => {
     try {
       setLoading(true);
       const res = await API.get(
-        `/courses?search=${search}&category=${
+        `/courses?search=${debouncedSearch}&category=${
           category === "all" ? "" : category
         }&sort=${sort}`
       );
@@ -70,6 +82,7 @@ export default function Explore() {
 
   const handleClearFilters = () => {
     setSearch("");
+    setDebouncedSearch("");
     setCategory("all");
     setSort("");
     setCurrentPage(1);
@@ -101,7 +114,7 @@ export default function Explore() {
               type="text"
               placeholder="Search courses..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleSearchChange}
               className="filter-input"
             />
           </div>
@@ -114,11 +127,9 @@ export default function Explore() {
               onChange={(e) => setCategory(e.target.value)}
               className="filter-select"
             >
-              <option value="all">All Categories</option>
-              <option value="frontend">Frontend</option>
-              <option value="backend">Backend</option>
-              <option value="database">Database</option>
-              <option value="fullstack">Fullstack</option>
+              {categories.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
             </select>
           </div>
 

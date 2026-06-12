@@ -21,61 +21,27 @@ export default function Login() {
   const [loading, setLoading] =
     useState(false);
 
-  // LOGIN
-const handleLogin = async (e) => {
-
+  const handleLogin = async (e) => {
   e.preventDefault();
+  setError("");
+  setLoading(true);
 
   try {
+    const res = await API.post("/auth/login", { email, password });
 
-    const res =
-      await API.post(
-        "/auth/login",
-        {
-          email,
-          password,
-        }
-      );
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
 
-    localStorage.setItem(
-      "token",
-      res.data.token
-    );
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify(
-        res.data.user
-      )
-    );
-
-    if (
-      res.data.user.isAdmin
-    ) {
-
+    if (res.data.user.isAdmin) {
       navigate("/admin");
-
     } else {
-
-      navigate("/mylearning");
-
+      navigate("/");
     }
-
   } catch (err) {
-    if (
-  err.response?.status === 401
-) {
-
-  navigate("/login");
-
-}
-
-    setError(
-      err.response?.data?.message
-    );
-
+    setError(err.response?.data?.message || "Login failed. Please try again.");
+  } finally {
+    setLoading(false);
   }
-
 };
 
   return (

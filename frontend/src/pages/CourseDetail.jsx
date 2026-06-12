@@ -51,36 +51,30 @@ export default function CourseDetail() {
 
   }, [id]);
 
-// FETCH USER NAME
-
+// FETCH USER NAME — read from localStorage first, fallback to /api/profile
   const fetchUserName = async () => {
-
     try {
+      // Try localStorage first (set during login/register)
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const name = parsed?.name || parsed?.userName;
+        if (name) {
+          setUserName(name);
+          return;
+        }
+      }
 
-      const token =
-        localStorage.getItem("token");
-
+      // Fallback: fetch from correct endpoint /api/profile
+      const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res =
-        await API.get(
-          "/users/profile",
-          {
-            headers:{
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-      setUserName(res.data.name || res.data.userName);
-
+      const res = await API.get("/profile");
+      setUserName(res.data.name || res.data.userName || "");
     } catch (err) {
-
-      console.log(err);
-
+      console.log("[fetchUserName] error:", err?.response?.status, err?.message);
+      // Non-critical — don't show toast
     }
-
   };
 
 // FETCH SINGLE COURSE
@@ -171,9 +165,9 @@ export default function CourseDetail() {
         return;
       }
 
-      // Check if course is paid
-      if (course.price && course.price !== "Free") {
-        // Show payment modal for paid courses
+      // Check if course is paid (price is a number string like "1299")
+      const priceNum = parseInt(String(course.price).replace(/[^0-9]/g, ""), 10);
+      if (priceNum && priceNum > 0 && course.price !== "Free" && course.price !== "0") {
         setShowPaymentModal(true);
         return;
       }
@@ -217,45 +211,37 @@ export default function CourseDetail() {
   };
 
   // PAYMENT SUCCESS HANDLER
-
+  // paymentRecordId = null means "already enrolled" detected at order creation stage
+  // For mock mode: backend (mock-enroll) already created the enrollment
+  // For real Razorpay: need to call /enrollments/enroll here
   const handlePaymentSuccess = async (paymentRecordId) => {
-
     try {
-
-      const token =
-        localStorage.getItem("token");
-
-      // Enroll user after successful payment
-      await API.post(
-
-        "/enrollments/enroll",
-
-        {
-          courseId: id,
-          paymentId: paymentRecordId,
-        },
-
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
+      if (paymentRecordId) {
+        // Try enroll — for mock mode backend already enrolled, so "Already enrolled" is fine
+        try {
+          await API.post("/enrollments/enroll", {
+            courseId: id,
+            paymentId: paymentRecordId,
+          });
+        } catch (err) {
+          const msg = err?.response?.data?.message || "";
+          // "Already enrolled" from mock-enroll having done it already — ignore
+          if (!msg.toLowerCase().includes("already enrolled")) {
+            throw err;
+          }
         }
-
-      );
+      }
 
       setIsEnrolled(true);
-      setShowPaymentModal(false);
-      window.addToast("Course Enrolled Successfully!", "success");
+      window.addToast?.("🎉 Enrolled Successfully!", "success");
       checkEnrollment();
 
     } catch (err) {
-
-      console.log(err);
-      window.addToast("Enrollment failed after payment: " + (err.response?.data?.message || err.message), "error");
-
+      console.log("[handlePaymentSuccess] error:", err?.response?.data);
+      const msg = err?.response?.data?.message || err?.message || "Enrollment failed";
+      window.addToast?.("Enrollment failed: " + msg, "error");
+      throw err;
     }
-
   };
 
   const updateCourseProgress = async () => {
@@ -508,7 +494,7 @@ const handlePdfOpen = (file, title) => {
                   </div>
             
                   <div className="old-price">
-                    {course.oldprice}
+                    ₹{course.oldPrice}
                   </div>
                 </div>
             

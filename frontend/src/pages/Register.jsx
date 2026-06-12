@@ -46,10 +46,7 @@ export default function Register() {
             }
           );
 
-        alert(
-          response.data.message
-        );
-
+        window.addToast?.("Registration successful! Please login.", "success");
         navigate("/login");
 
       } catch (error) {

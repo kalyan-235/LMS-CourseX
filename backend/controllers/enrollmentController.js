@@ -30,23 +30,38 @@ async (req,res) => {
     }
 
     // CHECK PAYMENT (if course has price)
-    if (course.price && course.price !== "Free") {
+    const priceNum = parseInt(String(course.price).replace(/[^0-9]/g, ""), 10);
+    const isPaid = priceNum && priceNum > 0 && course.price !== "Free" && course.price !== "0";
+
+    if (isPaid) {
+      if (!paymentId) {
+        return res.status(400).json({
+          message: "Payment required. Please complete payment first.",
+        });
+      }
+
       const payment = await Payment.findById(paymentId);
-      
+
       if (!payment) {
-        return res.status(400)
-        .json({
-          message:
-            "Payment record not found. Please make payment first.",
+        return res.status(400).json({
+          message: "Payment record not found. Please make payment first.",
         });
       }
 
       if (payment.status !== "success") {
-        return res.status(400)
-        .json({
-          message:
-            "Payment not completed. Please complete payment first.",
+        return res.status(400).json({
+          message: `Payment not completed (status: ${payment.status}). Please complete payment first.`,
           status: payment.status,
+        });
+      }
+
+      // Make sure payment belongs to this user and course
+      if (
+        payment.userId.toString() !== userId.toString() ||
+        payment.courseId.toString() !== courseId.toString()
+      ) {
+        return res.status(403).json({
+          message: "Payment mismatch. Please contact support.",
         });
       }
     }

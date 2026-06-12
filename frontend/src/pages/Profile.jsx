@@ -292,7 +292,7 @@ export default function Profile() {
                 </div>
 
                 <Link
-                  to={`/courses/${
+                  to={`/course/${
                     item.courseId?._id
                   }`}
                   className="continue-btn"
@@ -361,7 +361,7 @@ export default function Profile() {
                   </div>
 
                   <Link
-                    to={`/courses/${
+                    to={`/course/${
                       item.courseId?._id
                     }`}
                     className="review-btn"

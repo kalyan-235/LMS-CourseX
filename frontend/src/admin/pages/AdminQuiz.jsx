@@ -162,9 +162,7 @@ export default function AdminQuiz() {
 
       );
 
-      alert(
-        "Quiz Saved Successfully"
-      );
+      window.addToast?.("Quiz saved successfully!", "success");
 
       setShowModal(false);
 
@@ -174,9 +172,7 @@ export default function AdminQuiz() {
 
       console.log(error);
 
-      alert(
-        "Quiz Save Failed"
-      );
+      window.addToast?.("Failed to save quiz", "error");
 
     } finally {
 
@@ -193,71 +189,33 @@ export default function AdminQuiz() {
       <div className="admin-quiz-page">
 
         {/* HEADER */}
-
         <div className="admin-quiz-header">
-
-          <h2>
-            Quiz Management
-          </h2>
-
+          <h2>Quiz Management</h2>
           <button
             className="add-quiz-btn"
             onClick={() => {
               setSelectedCourse(null);
-              setQuestions([
-                {
-                  question: "",
-                  options: ["", "", "", ""],
-                  answer: "",
-                },
-              ]);
+              setQuestions([{ question: "", options: ["", "", "", ""], answer: "" }]);
               setShowModal(true);
             }}
           >
             + Add New Quiz
           </button>
+        </div>
+
+        {/* COURSE QUIZ CARDS */}
+        <div className="quiz-cards-grid">
           {courses.map((course) => (
-          
-            <div
-              className="quiz-card"
-              key={course._id}
-            >
-            
-              <img
-                src={course.image}
-                alt={course.title}
-                className="quiz-course-image"
-              />
-
-              <h3>
-                {course.title}
-              </h3>
-          
-              <p>
-                {course.category}
-              </p>
-          
-              <p>
-                Questions:
-                {" "}
-                {course.quiz?.length || 0}
-              </p>
-          
-              <button
-                className="edit-quiz-btn"
-                onClick={() =>
-                  openQuizModal(course)
-                }
-              >
-              
+            <div className="quiz-card" key={course._id}>
+              <img src={course.image} alt={course.title} className="quiz-course-image" />
+              <h3>{course.title}</h3>
+              <p>{course.category}</p>
+              <p>Questions: {course.quiz?.length || 0}</p>
+              <button className="edit-quiz-btn" onClick={() => openQuizModal(course)}>
                 Manage Quiz
-              
               </button>
-              
             </div>
-
           ))}
-
         </div>
 
       </div>

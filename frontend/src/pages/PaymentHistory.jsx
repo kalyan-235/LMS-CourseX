@@ -15,13 +15,7 @@ export default function PaymentHistory() {
   const fetchPaymentHistory = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-
-      // Get user's payments from backend (we'll create this endpoint)
-      const res = await API.get("/payments/my", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const res = await API.get("/payments/my");
       setPayments(res.data || []);
     } catch (err) {
       console.log("Error fetching payment history:", err);
@@ -30,6 +24,10 @@ export default function PaymentHistory() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPaymentHistory();
+  }, []);
 
   const filteredPayments = payments
     .filter((payment) => {
