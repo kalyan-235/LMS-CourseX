@@ -1,50 +1,93 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800&display=swap');
 
+/* ── CSS Variables ──────────────────────────────────────── */
 :root {
-  /* Light mode colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f7fb;
-  --bg-tertiary: #f3f4f6;
-  --text-primary: #111827;
+  --bg-primary:     #ffffff;
+  --bg-secondary:   #f5f7fb;
+  --bg-tertiary:    #f3f4f6;
+  --text-primary:   #111827;
   --text-secondary: #6b7280;
-  --border-color: #e5e7eb;
-  --accent-color: #4F46E5;
-  --success-color: #059669;
-  --warning-color: #d97706;
-  --error-color: #dc2626;
+  --border-color:   #e5e7eb;
+  --accent-color:   #6366f1;
+  --success-color:  #059669;
+  --warning-color:  #d97706;
+  --error-color:    #dc2626;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+/* ── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-  font-family:'DM Sans',sans-serif;
-  background:var(--bg-secondary);
-  color:var(--text-primary);
-  transition:background-color 0.3s ease,color 0.3s ease;
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
 }
 
 body.dark-mode {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
-  --text-primary: #f1f5f9;
+  --bg-primary:     #0f172a;
+  --bg-secondary:   #1e293b;
+  --bg-tertiary:    #334155;
+  --text-primary:   #f1f5f9;
   --text-secondary: #cbd5e1;
-  --border-color: #475569;
+  --border-color:   #475569;
 }
 
 body.light-mode {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f7fb;
-  --bg-tertiary: #f3f4f6;
-  --text-primary: #111827;
+  --bg-primary:     #ffffff;
+  --bg-secondary:   #f5f7fb;
+  --bg-tertiary:    #f3f4f6;
+  --text-primary:   #111827;
   --text-secondary: #6b7280;
-  --border-color: #e5e7eb;
+  --border-color:   #e5e7eb;
 }
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ── App Layout ─────────────────────────────────────────── */
+
+/* Topbar layout — full width, topbar fixed at top */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main page area — sits below topbar spacer */
+.page-content {
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Content wrapper inside each page */
+.content {
+  padding: 28px;
+}
+
+/* ── Old sidebar layout classes (kept for compatibility) ── */
 .app {
   display: flex;
   min-height: 100vh;
@@ -52,22 +95,23 @@ body.light-mode {
 
 .main {
   flex: 1;
-  margin-left: 256px;
   min-width: 0;
-  transition: margin-left 0.3s ease;
 }
 
-.content {
-  padding: 28px;
-  min-height: 100vh;
+/* ── Dark mode page backgrounds ─────────────────────────── */
+body.dark-mode .page-content {
+  background: var(--bg-secondary);
 }
 
+/* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .main {
-    margin-left: 0;
-  }
-
   .content {
-    padding: 70px 16px 24px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 12px;
   }
 }

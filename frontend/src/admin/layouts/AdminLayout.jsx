@@ -17,8 +17,6 @@ export default function AdminLayout({
 
       <div className="admin-main">
 
-        {/* <AdminTopbar /> */}
-
         <div className="admin-content">
 
           {children}

@@ -1,331 +1,245 @@
-import { useState , useEffect} from "react";
+import { useState, useEffect } from "react";
+import {
+  Search, Users, TrendingUp, Award,
+  Clock, ChevronDown, Filter, Download,
+} from "lucide-react";
 import API from "../../api/axios";
 import AdminLayout from "../layouts/AdminLayout";
-import "../css/adminstudents.css";
+import Loading from "../../components/Loading";
 
 export default function AdminStudents() {
+  const [students, setStudents] = useState([]);
+  const [search,   setSearch]   = useState("");
+  const [filter,   setFilter]   = useState("all"); // all | active | completed
+  const [loading,  setLoading]  = useState(true);
+  const [sortBy,   setSortBy]   = useState("name"); // name | progress | hours
 
-  const [students,setStudents] =
-useState([]);
+  useEffect(() => { fetchStudents(); }, []);
 
-  const [search, setSearch] = useState("");
-
-  const [loading,setLoading] =
-  useState(true);
-
-  useEffect(()=>{
-
-   fetchStudents();
-
-  },[]);
-  const fetchStudents =
-  async()=>{
-
-   try{
-
-    const res =
-     await API.get(
-      "/users/students"
-     );
-
-    setStudents(
-     res.data
-    );
-
-   }catch(error){
-
-    console.log(error);
-
-   }finally{
-
-    setLoading(false);
-
-   }
-
+  const fetchStudents = async () => {
+    try {
+      const res = await API.get("/users/students");
+      setStudents(res.data || []);
+    } catch (err) {
+      console.log(err);
+      window.addToast?.("Failed to load students", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filteredStudents = students.filter((student) =>
-    student.userId?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    student.userId?.email?.toLowerCase().includes(search.toLowerCase())
-  );
+  // ── Stats ───────────────────────────────────────────────
+  const total     = students.length;
+  const active    = students.filter(s => !s.completed).length;
+  const completed = students.filter(s => s.completed).length;
+  const avgProgress = total
+    ? Math.round(students.reduce((sum, s) => sum + (s.progress || 0), 0) / total)
+    : 0;
 
-  if(loading){
+  // ── Filter + Search ────────────────────────────────────
+  const filtered = students
+    .filter(s => {
+      if (filter === "active")    return !s.completed;
+      if (filter === "completed") return s.completed;
+      return true;
+    })
+    .filter(s => {
+      if (!search) return true;
+      const q = search.toLowerCase();
+      return (
+        s.userId?.name?.toLowerCase().includes(q) ||
+        s.userId?.email?.toLowerCase().includes(q) ||
+        s.courseId?.title?.toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      if (sortBy === "progress") return (b.progress || 0) - (a.progress || 0);
+      if (sortBy === "hours")    return (b.watchedHours || 0) - (a.watchedHours || 0);
+      return (a.userId?.name || "").localeCompare(b.userId?.name || "");
+    });
 
-   return (
-    <AdminLayout>
-     <h2>
-      Loading Students...
-     </h2>
-    </AdminLayout>
-   );
+  const getInitial = (name) => (name || "?")[0].toUpperCase();
 
-  }
+  const AVATAR_COLORS = [
+    "#6366f1","#7c3aed","#0284c7","#059669","#d97706","#dc2626","#db2777",
+  ];
+  const avatarColor = (name = "") =>
+    AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+
+  if (loading) return <AdminLayout><div style={{padding:"60px 0",textAlign:"center"}}><Loading fullPage={false}/></div></AdminLayout>;
 
   return (
-
     <AdminLayout>
+      <div className="ast-page">
 
-      <div className="admin-students-page">
-
-        {/* TOP */}
-
-        <div className="student-top">
-
+        {/* ── TOPBAR ──────────────────────────────────── */}
+        <div className="ast-topbar">
           <div>
-
-            <h1>
-              Student Management
-            </h1>
-
-            <p>
-              Manage all enrolled students
-            </p>
-
+            <h1 className="ast-title">Student Management</h1>
+            <p className="ast-subtitle">Monitor progress of all enrolled students</p>
           </div>
-
-          <input
-            type="text"
-            placeholder="Search student..."
-            value={search}
-            onChange={(e) =>
-              setSearch(
-                e.target.value
-              )
-            }
-            className="student-search"
-          />
-
+          <div className="ast-topbar-right">
+            <div className="ast-search-wrap">
+              <Search size={15} className="ast-search-icon"/>
+              <input
+                className="ast-search-input"
+                placeholder="Search by name, email or course…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
 
-        {/* STATS */}
-
-        <div className="student-stats">
-
-          <div className="student-stat-card">
-
-            <h2>
-              {students.length}
-            </h2>
-
-            <span>
-              Total Students
-            </span>
-
-          </div>
-
-          <div className="student-stat-card active">
-
-            <h2>
-
-              {
-                students.filter(
-                  (student) =>
-                    student.completed === false
-                ).length
-              }
-
-            </h2>
-
-            <span>
-              Currently Learning
-            </span>
-
-          </div>
-
-          <div className="student-stat-card completed">
-
-            <h2>
-
-              {
-                students.filter(
-                  (student) =>
-                    student.completed === true
-                ).length
-              }
-
-            </h2>
-
-            <span>
-              Course Completed
-            </span>
-
-          </div>
-
+        {/* ── STATS ───────────────────────────────────── */}
+        <div className="ast-stats-row">
+          {[
+            { label:"Total Students", value: total,       icon: <Users size={18}/>,      color:"indigo" },
+            { label:"In Progress",    value: active,      icon: <TrendingUp size={18}/>, color:"amber"  },
+            { label:"Completed",      value: completed,   icon: <Award size={18}/>,      color:"emerald"},
+            { label:"Avg Progress",   value: avgProgress+"%", icon:<Clock size={18}/>,   color:"violet" },
+          ].map((s, i) => (
+            <div key={i} className={`ast-stat ast-stat-${s.color}`}>
+              <div className={`ast-stat-icon ast-icon-${s.color}`}>{s.icon}</div>
+              <div>
+                <div className="ast-stat-val">{s.value}</div>
+                <div className="ast-stat-label">{s.label}</div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* TABLE */}
+        {/* ── FILTER TABS + SORT ──────────────────────── */}
+        <div className="ast-controls">
+          <div className="ast-filter-tabs">
+            {[
+              { key:"all",       label:`All (${total})`       },
+              { key:"active",    label:`In Progress (${active})`    },
+              { key:"completed", label:`Completed (${completed})` },
+            ].map(t => (
+              <button
+                key={t.key}
+                className={`ast-filter-tab ${filter === t.key ? "ast-filter-tab--active" : ""}`}
+                onClick={() => setFilter(t.key)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
 
-        <div className="students-table">
+          <div className="ast-sort-wrap">
+            <Filter size={13}/>
+            <select
+              className="ast-sort-select"
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+            >
+              <option value="name">Sort: Name</option>
+              <option value="progress">Sort: Progress</option>
+              <option value="hours">Sort: Hours</option>
+            </select>
+          </div>
+        </div>
 
-          <table>
+        {/* ── TABLE ───────────────────────────────────── */}
+        {filtered.length === 0 ? (
+          <div className="ast-empty">
+            <Users size={40}/>
+            <h3>No students found</h3>
+            <p>Try adjusting your search or filter</p>
+          </div>
+        ) : (
+          <div className="ast-table-wrap">
+            <table className="ast-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Course</th>
+                  <th>Progress</th>
+                  <th>Quiz</th>
+                  <th>Streak</th>
+                  <th>Hours</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((s) => (
+                  <tr key={s._id} className="ast-row">
 
-            <thead>
-
-              <tr>
-
-                <th>Student</th>
-
-                <th>Email</th>
-
-                <th>Course</th>
-
-                <th>Progress</th>
-
-                <th>Quiz Score</th>
-
-                <th>Daily Streak</th>
-
-                <th>Hours</th>
-
-                <th>Status</th>
-
-                <th>Actions</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {filteredStudents.map(
-                (student) => (
-
-                  <tr
-                    key={student.id}
-                  >
-
-                    {/* PROFILE */}
-
+                    {/* Student */}
                     <td>
-
-                      <div className="student-info">
-
-                        <div className="avatar-wrapper">
-
-                          <img
-                            src={student.userId?.profileImage || "https://via.placeholder.com/40"}
-                            alt={student.userId?.name}
-                            className="student-avatar"
-                          />
-
-                          {/* Online status not available in current data */}
-
+                      <div className="ast-student-cell">
+                        <div
+                          className="ast-avatar"
+                          style={{ background: avatarColor(s.userId?.name) }}
+                        >
+                          {getInitial(s.userId?.name)}
                         </div>
-
-                        <div>
-
-                          <h4>
-                            {student.userId?.name}
-                          </h4>
-
-                          <p>
-                            ID : {student._id}
-                          </p>
-
+                        <div className="ast-student-info">
+                          <span className="ast-student-name">{s.userId?.name || "—"}</span>
+                          <span className="ast-student-email">{s.userId?.email || "—"}</span>
                         </div>
-
                       </div>
-
                     </td>
 
-                    {/* EMAIL */}
+                    {/* Course */}
                     <td>
-                      {student.userId?.email}
+                      <span className="ast-course-title">
+                        {s.courseId?.title || "—"}
+                      </span>
                     </td>
 
-                    {/* COURSE */}
+                    {/* Progress */}
                     <td>
-                      {student.courseId?.title}
-                    </td>
-
-                    {/* PROGRESS */}
-                    <td>
-                      <div className="progress-box">
-                        <div className="progress-bar">
+                      <div className="ast-progress-cell">
+                        <div className="ast-progress-bar">
                           <div
-                            className="progress-fill"
-                            style={{
-                              width: `${student.progress}%`,
-                            }}
-                          ></div>
+                            className={`ast-progress-fill ${s.completed ? "ast-fill-green" : "ast-fill-indigo"}`}
+                            style={{ width: `${s.progress || 0}%` }}
+                          />
                         </div>
-                          
-                        <span>
-                          {student.progress}%
-                        </span>
+                        <span className="ast-progress-pct">{s.progress || 0}%</span>
                       </div>
                     </td>
-                          
-                    {/* QUIZ */}
+
+                    {/* Quiz */}
                     <td>
-                      <span className="quiz-score">
-                        📝 {student.quizScore}%
-                      </span>
-                    </td>
-                    <td>
-                      <span className="streak-box">
-                        🔥 {student.userId?.streak || 0} Days
-                      </span>
-                    </td>
-                          
-                    {/* HOURS */}
-                    <td>
-                      {student.watchedHours}h
-                    </td>
-                          
-                    {/* STATUS */}
-                    <td>
-                      <span
-                        className={`student-status ${
-                          student.completed
-                            ? "completed"
-                            : "active"
-                        }`}
-                      >
-                        {
-                          student.completed
-                            ? "Completed"
-                            : "Learning"
-                        }
+                      <span className="ast-chip ast-chip-violet">
+                        {s.quizScore || 0}%
                       </span>
                     </td>
 
-                    {/* ACTIONS */}
-
+                    {/* Streak */}
                     <td>
+                      <span className="ast-chip ast-chip-amber">
+                        🔥 {s.userId?.streak || 0}d
+                      </span>
+                    </td>
 
-                      <div className="student-actions">
+                    {/* Hours */}
+                    <td>
+                      <span className="ast-hours">{s.watchedHours || 0}h</span>
+                    </td>
 
-                        <button className="block-btn">
-
-                          Block
-
-                        </button>
-
-                        <button className="remove-btn">
-
-                          Remove
-
-                        </button>
-
-                      </div>
-
+                    {/* Status */}
+                    <td>
+                      <span className={`ast-status ${s.completed ? "ast-status-done" : "ast-status-active"}`}>
+                        {s.completed ? "✓ Completed" : "● Learning"}
+                      </span>
                     </td>
 
                   </tr>
+                ))}
+              </tbody>
+            </table>
 
-                )
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
+            <div className="ast-table-footer">
+              Showing {filtered.length} of {students.length} students
+            </div>
+          </div>
+        )}
 
       </div>
-
     </AdminLayout>
-
   );
 }

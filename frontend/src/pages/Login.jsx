@@ -112,10 +112,10 @@ export default function Login() {
 
         </button>
 
+        <p className="auth-switch">email: admin@gmail.com</p>
+        <p className="auth-switch">psw: 12345678</p>
         <p className="auth-switch">
-
           Don't have account?
-
           <Link to="/register">
             Register
           </Link>

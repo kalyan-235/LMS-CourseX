@@ -1,401 +1,652 @@
-/* mylearning.css */
+/* ============================================================
+   MY LEARNING PAGE — PROFESSIONAL REDESIGN
+   ============================================================ */
 
-.mlpage{
-  padding:10px;
+.ml-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 28px 60px;
 }
 
-.mlhead h1{
-  font-size:34px;
-  margin-bottom:6px;
-  color:#111827;
+/* ── PAGE HEADER ─────────────────────────────────────────── */
+.ml-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 
-.mlhead p{
-  color:#6b7280;
-  margin-bottom:24px;
+.ml-header-title {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
 }
 
-.mlstats{
-  display:flex;
-  gap:18px;
-  margin-bottom:25px;
+.ml-header-sub {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
-.mlstat{
-  flex:1;
-  padding:20px;
-  border-radius:18px;
-  border:1px solid #e5e7eb;
+.ml-header-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.22s ease;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+  white-space: nowrap;
 }
 
-.mlstat h2{
-  margin:10px 0 4px;
-  font-size:28px;
+.ml-header-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(99, 102, 241, 0.4);
+  color: white;
+  text-decoration: none;
 }
 
-.mlstat span{
-  color:#6b7280;
-  font-size:14px;
+/* ── ERROR BANNER ────────────────────────────────────────── */
+.ml-error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  color: #991b1b;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
-.blue{
-  background:#eef4ff;
+.ml-error-banner button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
 }
 
-.orange{
-  background:#fff4e8;
+.ml-error-banner button:hover { background: #dc2626; }
+
+/* ── STATS ROW ───────────────────────────────────────────── */
+.ml-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 32px;
 }
 
-.green{
-  background:#edfdf5;
+.ml-stat-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 20px;
+  border-radius: 18px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
-.sicon{
-  font-size:20px;
+.ml-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.09);
 }
 
-.mltabs{
-  display:flex;
-  gap:12px;
-  margin-bottom:24px;
+/* Colored left accent bar */
+.ml-stat-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 2px 0 0 2px;
 }
 
-.mltab{
-  flex:1;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:#f3f4f6;
-  cursor:pointer;
-  font-weight:600;
+.ml-stat-blue  .ml-stat-accent { background: linear-gradient(180deg, #6366f1, #4f46e5); }
+.ml-stat-orange .ml-stat-accent { background: linear-gradient(180deg, #f59e0b, #d97706); }
+.ml-stat-green  .ml-stat-accent { background: linear-gradient(180deg, #10b981, #059669); }
+.ml-stat-purple .ml-stat-accent { background: linear-gradient(180deg, #8b5cf6, #7c3aed); }
+
+/* Icon wrap */
+.ml-stat-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.mltab.active{
-  background:#ffffff;
-  color:#2563eb;
-  border:1px solid #dbeafe;
-  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+.ml-stat-icon-blue   { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+.ml-stat-icon-orange { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.ml-stat-icon-green  { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.ml-stat-icon-purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+.ml-stat-body {
+  flex: 1;
+  min-width: 0;
 }
 
-.mllist{
-  display:flex;
-  flex-direction:column;
-  gap:18px;
+.ml-stat-value {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.5px;
 }
 
-.mlcard{
-  background:#fff;
-  border:1px solid #e5e7eb;
-  border-radius:18px;
-  padding:14px;
-  display:flex;
-  align-items:center;
-  gap:16px;
+.ml-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.mlimg{
-  width:120px;
-  height:80px;
-  object-fit:cover;
-  border-radius:14px;
+/* Mini SVG ring on purple card */
+.ml-stat-ring {
+  flex-shrink: 0;
 }
 
-.mlinfo{
-  flex:1;
+/* ── TABS BAR ─────────────────────────────────────────────── */
+.ml-tabs-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
 }
 
-.mlinfo h3{
-  font-size:18px;
-  margin-bottom:4px;
-  color:#111827;
+.ml-tabs {
+  display: flex;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 2px;
 }
 
-.mlinfo p{
-  font-size:14px;
-  color:#6b7280;
-  margin-bottom:14px;
+.ml-tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.mlprogress{
-  width:100%;
-  height:8px;
-  background:#e5e7eb;
-  border-radius:20px;
-  overflow:hidden;
-  margin-bottom:10px;
+.ml-tab:hover {
+  color: var(--text-primary);
+  background: var(--bg-primary);
 }
 
-.mlfill{
-  height:100%;
-  background:#22c55e;
-  border-radius:20px;
+.ml-tab--active {
+  background: var(--bg-primary);
+  color: #6366f1;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
 
-.mlbottom{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:13px;
-  color:#6b7280;
+.ml-tab--active svg {
+  color: #6366f1;
 }
 
-.playbtn{
-  width:42px;
-  height:42px;
-  border:none;
-  border-radius:50%;
-  background:#2563eb;
-  color:#fff;
-  cursor:pointer;
-  font-size:14px;
+.ml-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  transition: all 0.2s;
 }
 
-.chart-card{
-  background:white;
-  padding:25px;
-  border-radius:20px;
-  margin-bottom:30px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+.ml-tab-count--active {
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366f1;
 }
 
-.chart-title{
-  font-size:22px;
-  font-weight:700;
-  margin-bottom:20px;
+.ml-tabs-showing {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
-.badge-card{
-  background:white;
-  padding:25px;
-  border-radius:20px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.ml-empty {
+  text-align: center;
+  padding: 70px 24px;
+  background: var(--bg-primary);
+  border: 2px dashed var(--border-color);
+  border-radius: 20px;
 }
 
-.badge-title{
-  font-size:22px;
-  font-weight:700;
-  margin-bottom:20px;
+.ml-empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
 }
 
-.badge-list{
-  display:flex;
-  gap:15px;
-  flex-wrap:wrap;
+.ml-empty h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 10px;
 }
 
-.badge-item{
-  background:#EEF2FF;
-  color:#4F46E5;
-  padding:12px 18px;
-  border-radius:30px;
-  font-weight:600;
+.ml-empty p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.extra-learning-info{
-  margin-top:10px;
-  margin-bottom:10px;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  font-size:13px;
-  color:#6B7280;
+.ml-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 26px;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.22s ease;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
 }
 
-
-/* COURSE WRAPPER */
-
-.course-wrapper{
-  margin-bottom:30px;
+.ml-empty-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(99, 102, 241, 0.4);
+  color: white;
+  text-decoration: none;
 }
 
-/* COURSE CARD */
-
-.mlcard{
-  background:#ffffff;
-  border-radius:24px;
-  padding:18px;
-  display:flex;
-  align-items:center;
-  gap:20px;
-  border:1px solid #E5E7EB;
-  box-shadow:
-  0 4px 20px rgba(0,0,0,0.05);
-  text-decoration:none;
-  transition:0.3s;
-  position:relative;
-  overflow:hidden;
+/* ── COURSE LIST ─────────────────────────────────────────── */
+.ml-course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.mlcard:hover{
-  transform:translateY(-4px);
-  box-shadow:
-  0 10px 30px rgba(0,0,0,0.08);
+/* ── COURSE CARD ─────────────────────────────────────────── */
+.ml-course-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 18px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
 }
 
-/* IMAGE */
-
-.mlimg{
-  width:180px;
-  height:120px;
-  object-fit:cover;
-  border-radius:18px;
-  flex-shrink:0;
+.ml-course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+  border-color: rgba(99, 102, 241, 0.28);
+  text-decoration: none;
+  color: inherit;
 }
 
-/* INFO */
-
-.mlinfo{
-  flex:1;
-  display:flex;
-  flex-direction:column;
+.ml-course-card--done {
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
-.mlinfo h3{
-  font-size:24px;
-  font-weight:700;
-  color:#111827;
-  margin-bottom:6px;
+.ml-course-card--done:hover {
+  border-color: rgba(16, 185, 129, 0.5);
 }
 
-.mlinfo p{
-  color:#6B7280;
-  font-size:15px;
-  margin-bottom:14px;
+/* Thumbnail */
+.ml-course-thumb {
+  position: relative;
+  width: 180px;
+  height: 118px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
 }
 
-/* EXTRA INFO */
-
-.extra-learning-info{
-  display:grid;
-  grid-template-columns:
-  repeat(auto-fit,minmax(180px,1fr));
-  gap:12px;
-  margin-bottom:18px;
+.ml-course-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.extra-learning-info p{
-  background:#F9FAFB;
-  padding:12px 14px;
-  border-radius:14px;
-  font-size:14px;
-  font-weight:500;
-  color:#374151;
-  margin:0;
-  border:1px solid #E5E7EB;
+.ml-course-card:hover .ml-course-img {
+  transform: scale(1.05);
 }
 
-/* PROGRESS */
-
-.mlprogress{
-  width:100%;
-  height:10px;
-  background:#E5E7EB;
-  border-radius:30px;
-  overflow:hidden;
-  margin-bottom:14px;
+.ml-course-done-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #10b981;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
-.mlfill{
-  height:100%;
-  background:
-  linear-gradient(
-    90deg,
-    #22C55E,
-    #16A34A
-  );
-  border-radius:30px;
-  transition:0.4s;
+/* Content */
+.ml-course-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* BOTTOM */
-
-.mlbottom{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:6px;
+.ml-course-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.mlbottom span{
-  color:#6B7280;
-  font-size:14px;
-  font-weight:500;
+.ml-course-category {
+  display: inline-block;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
-.mlbottom strong{
-  color:#111827;
-  font-size:18px;
+.ml-course-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 999px;
 }
 
-/* PLAY BUTTON */
-
-.playbtn{
-  width:60px;
-  height:60px;
-  border:none;
-  border-radius:50%;
-  background:
-  linear-gradient(
-    135deg,
-    #4F46E5,
-    #4338CA
-  );
-  color:white;
-  font-size:22px;
-  font-weight:700;
-  cursor:pointer;
-  flex-shrink:0;
-  transition:0.3s;
-  box-shadow:
-  0 4px 14px rgba(79,70,229,0.3);
+.ml-course-status--active {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
 }
 
-.playbtn:hover{
-  transform:scale(1.08);
+.ml-course-status--done {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
 }
 
-/* COMPLETED COURSE */
-
-.mlcard.completed{
-  border:2px solid #22C55E;
+.ml-course-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.35;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* RESPONSIVE */
+.ml-course-author {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
 
-@media(max-width:900px){
+/* Stat pills */
+.ml-course-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 2px 0;
+}
 
-  .mlcard{
-    flex-direction:column;
-    align-items:flex-start;
+.ml-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Progress bar */
+.ml-course-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ml-course-progress-bar {
+  flex: 1;
+  height: 7px;
+  background: var(--bg-tertiary);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ml-course-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.ml-course-progress-fill--done {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.ml-course-progress-pct {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  min-width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Footer */
+.ml-course-footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.ml-course-resume {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6366f1;
+}
+
+.ml-course-arrow {
+  color: #6366f1;
+  transition: transform 0.2s;
+}
+
+.ml-course-card:hover .ml-course-arrow {
+  transform: translateX(4px);
+}
+
+/* Play / Check button */
+.ml-play-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.32);
+}
+
+.ml-play-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 22px rgba(99, 102, 241, 0.45);
+}
+
+.ml-play-btn--done {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.ml-play-btn--done:hover {
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.5);
+}
+
+/* ── DARK MODE ───────────────────────────────────────────── */
+body.dark-mode .ml-stat-card { background: #1e293b; border-color: #334155; }
+body.dark-mode .ml-tabs      { background: #0f172a; border-color: #1e293b; }
+body.dark-mode .ml-tab--active { background: #1e293b; }
+body.dark-mode .ml-course-card { background: #1e293b; border-color: #334155; }
+body.dark-mode .ml-course-card--done { border-color: rgba(16,185,129,0.25); }
+body.dark-mode .ml-pill        { background: #0f172a; border-color: #334155; }
+body.dark-mode .ml-course-progress-bar { background: #334155; }
+body.dark-mode .ml-empty       { background: #1e293b; border-color: #334155; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .ml-stats-row {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .mlimg{
-    width:100%;
-    height:220px;
+  .ml-course-card {
+    gap: 16px;
   }
 
-  .playbtn{
-    width:50px;
-    height:50px;
-    font-size:18px;
+  .ml-course-thumb {
+    width: 140px;
+    height: 95px;
   }
-
 }
 
-@media(max-width:600px){
-
-  .mlinfo h3{
-    font-size:20px;
+@media (max-width: 680px) {
+  .ml-page {
+    padding: 24px 16px 48px;
   }
 
-  .extra-learning-info{
-    grid-template-columns:1fr;
+  .ml-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 
-  .mlbottom{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:8px;
+  .ml-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
+  .ml-stat-value {
+    font-size: 1.4rem;
+  }
+
+  .ml-tabs-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .ml-tabs {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .ml-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 12px;
+    font-size: 0.8rem;
+  }
+
+  .ml-course-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .ml-course-thumb {
+    width: 100%;
+    height: 190px;
+  }
+
+  .ml-play-btn {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 400px) {
+  .ml-stats-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .ml-stat-card {
+    padding: 16px 14px;
+  }
+
+  .ml-stat-ring {
+    display: none;
+  }
 }

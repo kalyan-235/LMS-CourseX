@@ -77,7 +77,7 @@
   position: relative;
   padding: 0 40px 0;
   overflow: hidden;
-  min-height: 90vh;
+  min-height: 80vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -142,7 +142,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 60px;
   align-items: center;
-  padding: 80px 0 40px;
+  padding: 40px 0 40px;
   max-width: 1280px;
   margin: 0 auto;
   width: 100%;
@@ -410,7 +410,7 @@
 
 .hpro-stat-item {
   background: var(--bg-primary);
-  padding: 28px 24px;
+  padding: 16px 14px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -448,7 +448,7 @@
   max-width: 100%;
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
-  padding: 80px 40px;
+  padding: 40px 40px;
 }
 
 .hpro-features > * {
@@ -531,7 +531,7 @@
    COURSES SECTION
    ============================================================ */
 .hpro-courses {
-  padding: 80px 40px;
+  padding: 40px 40px;
 }
 
 .hpro-btn-outline-sm {
@@ -745,7 +745,7 @@
   background: var(--bg-primary);
   max-width: 100%;
   border-top: 1px solid var(--border-color);
-  padding: 80px 40px;
+  padding: 40px 40px;
 }
 
 .hpro-why > * {
@@ -784,7 +784,7 @@
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 18px;
-  padding: 18px 22px;
+  padding: 14px 8px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -850,7 +850,7 @@
    TESTIMONIALS SECTION
    ============================================================ */
 .hpro-testimonials {
-  padding: 80px 40px;
+  padding: 40px 40px;
 }
 
 .hpro-testimonials-grid {
@@ -956,7 +956,7 @@
 .hpro-cta {
   position: relative;
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
-  padding: 80px 40px;
+  padding: 40px 40px;
   text-align: center;
   overflow: hidden;
 }
@@ -1217,7 +1217,7 @@ body.dark-mode .hpro-orb-2 {
   }
 
   .hpro-section {
-    padding: 60px 24px;
+    padding: 0px 24px;
   }
 
   .hpro-features {

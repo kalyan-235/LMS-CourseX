@@ -1,1010 +1,399 @@
-import { useState,useEffect } from "react";
-
+import { useState, useEffect } from "react";
+import {
+  Plus, Search, Pencil, Trash2, X, BookOpen,
+  Upload, Link2, ChevronDown, ChevronUp, Save,
+  ImagePlus, FileText, CheckCircle2,
+} from "lucide-react";
 import AdminLayout from "../layouts/AdminLayout";
 import API from "../../api/axios";
 
-export default function AdminCourses() {
+const CATEGORIES = [
+  "Web Development","Frontend","Backend","Data Science",
+  "Programming","Design","DevOps","Cloud",
+  "Mobile","Cybersecurity","Database","Full Stack","AI/ML",
+];
 
-  const [courses, setCourses] =
-  useState([]);
-
-  const [search, setSearch] =
-    useState("");
-
-  const [showForm, setShowForm] =
-    useState(false);
-
-  // FORM STATES
-
-  const [title, setTitle] =
-    useState("");
-
-  const [author, setAuthor] =
-    useState("");
-
-  const [role, setRole] =
-    useState("");
-
-  const [email, setEmail] =
-    useState("");
-
-  const [bio, setBio] =
-    useState("");
-
-  const [category, setCategory] =
-    useState("");
-
-  const [price, setPrice] =
-    useState("");
-
-  const [oldPrice, setOldPrice] =
-    useState("");
-
-  const [video, setVideo] =
-    useState("");
-
-  const [description, setDescription] =
-    useState("");
-
-  const [imagePreview, setImagePreview] =
-    useState("");
-
-  const [editingCourseId, setEditingCourseId] =
-    useState(null);
-
-  // LEARN
-
-  const [learnPoints, setLearnPoints] =
-    useState([""]);
-
-  // PREREQUISITES
-
-  const [
-    prerequisites,
-    setPrerequisites,
-  ] = useState([""]);
-
-  // PDFS
-
-  const [pdfs, setPdfs] =
-    useState([
-      {
-        title:"",
-        file:"",
-      },
-    ]);
-    const fetchCourses =
-async ()=>{
-
-  try{
-
-    const res =
-      await API.get(
-        "/courses"
-      );
-
-    setCourses(
-      res.data
-    );
-
-  }catch(err){
-
-    console.log(err);
-
-  }
-
+const EMPTY_FORM = {
+  title:"", author:"", role:"", email:"", bio:"",
+  category:"", price:"", oldPrice:"", video:"", description:"",
+  image:"", learnPoints:[""], prerequisites:[""],
+  pdfs:[{ title:"", file:"" }],
 };
-useEffect(()=>{
 
-  fetchCourses();
+export default function AdminCourses() {
+  const [courses, setCourses]         = useState([]);
+  const [search,  setSearch]          = useState("");
+  const [showForm, setShowForm]       = useState(false);
+  const [editingId, setEditingId]     = useState(null);
+  const [saving,  setSaving]          = useState(false);
+  const [deleting, setDeleting]       = useState(null);
+  const [form,    setForm]            = useState(EMPTY_FORM);
+  const [expandedSection, setExpandedSection] = useState("basic");
 
-},[]);
-  // IMAGE
-  const handleImageUpload =
-  async (e)=>{
-  
-    const file =
-      e.target.files[0];
-  
-    if(!file) return;
-  
-    const formData =
-      new FormData();
-  
-    formData.append(
-      "image",
-      file
-    );
-  
-    try{
-    
-      const res =
-        await API.post(
-          "/upload/image",
-          formData
-        );
-      
-      setImagePreview(
-        res.data.imageUrl
-      );
-    
-    }catch(err){
-    
-      console.log(err);
-    
-      alert(
-        "Image Upload Failed"
-      );
-    
-    }
-  
+  useEffect(() => { fetchCourses(); }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const res = await API.get("/courses");
+      setCourses(res.data);
+    } catch { window.addToast?.("Failed to load courses", "error"); }
   };
 
-  const handlePdfUpload =
-async(index,e)=>{
+  // ── Form helpers ────────────────────────────────────────
+  const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
-  const file =
-    e.target.files[0];
+  const setListItem = (key, idx, val) =>
+    setForm(f => {
+      const arr = [...f[key]];
+      arr[idx] = val;
+      return { ...f, [key]: arr };
+    });
 
-  if(!file) return;
+  const addListItem  = (key, empty) => setForm(f => ({ ...f, [key]: [...f[key], empty] }));
+  const removeListItem = (key, idx) => setForm(f => ({ ...f, [key]: f[key].filter((_,i) => i !== idx) }));
 
-  const formData =
-    new FormData();
+  const setPdfField = (idx, field, val) =>
+    setForm(f => {
+      const pdfs = [...f.pdfs];
+      pdfs[idx] = { ...pdfs[idx], [field]: val };
+      return { ...f, pdfs };
+    });
 
-  formData.append(
-    "pdf",
-    file
+  const resetForm = () => { setForm(EMPTY_FORM); setEditingId(null); setShowForm(false); setExpandedSection("basic"); };
+
+  // ── Image upload ────────────────────────────────────────
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("image", file);
+    try {
+      const res = await API.post("/upload/image", fd);
+      set("image", res.data.imageUrl);
+    } catch { window.addToast?.("Image upload failed", "error"); }
+  };
+
+  const handlePdfUpload = async (idx, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("pdf", file);
+    try {
+      const res = await API.post("/upload/pdf", fd);
+      setPdfField(idx, "file", res.data.pdfUrl);
+    } catch { window.addToast?.("PDF upload failed", "error"); }
+  };
+
+  // ── Save (Add/Update) ───────────────────────────────────
+  const handleSave = async () => {
+    if (!form.title || !form.category || !form.price) {
+      window.addToast?.("Title, category and price are required", "warning");
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      title: form.title, author: form.author, category: form.category,
+      price: form.price, oldPrice: form.oldPrice, video: form.video,
+      description: form.description, image: form.image,
+      learn: form.learnPoints.filter(Boolean),
+      prerequisites: form.prerequisites.filter(Boolean),
+      pdfs: form.pdfs.filter(p => p.title),
+      instructor: { name: form.author, role: form.role, email: form.email, bio: form.bio },
+    };
+    try {
+      if (editingId) {
+        await API.put(`/courses/${editingId}`, payload);
+        window.addToast?.("Course updated successfully!", "success");
+      } else {
+        await API.post("/courses", payload);
+        window.addToast?.("Course added successfully!", "success");
+      }
+      fetchCourses();
+      resetForm();
+    } catch { window.addToast?.("Failed to save course", "error"); }
+    finally { setSaving(false); }
+  };
+
+  // ── Delete ──────────────────────────────────────────────
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this course? This cannot be undone.")) return;
+    setDeleting(id);
+    try {
+      await API.delete(`/courses/${id}`);
+      window.addToast?.("Course deleted", "success");
+      fetchCourses();
+    } catch { window.addToast?.("Failed to delete course", "error"); }
+    finally { setDeleting(null); }
+  };
+
+  // ── Edit ────────────────────────────────────────────────
+  const handleEdit = (c) => {
+    setForm({
+      title: c.title || "", author: c.author || "",
+      role: c.instructor?.role || "", email: c.instructor?.email || "",
+      bio: c.instructor?.bio || "", category: c.category || "",
+      price: c.price || "", oldPrice: c.oldPrice || "",
+      video: c.video || "", description: c.description || "",
+      image: c.image || "",
+      learnPoints: c.learn?.length ? c.learn : [""],
+      prerequisites: c.prerequisites?.length ? c.prerequisites : [""],
+      pdfs: c.pdfs?.length ? c.pdfs : [{ title:"", file:"" }],
+    });
+    setEditingId(c._id);
+    setShowForm(true);
+    setExpandedSection("basic");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const filtered = courses.filter(c =>
+    c.title?.toLowerCase().includes(search.toLowerCase()) ||
+    c.author?.toLowerCase().includes(search.toLowerCase()) ||
+    c.category?.toLowerCase().includes(search.toLowerCase())
   );
 
-  try{
-
-    const res =
-      await API.post(
-        "/upload/pdf",
-        formData
-      );
-
-    const updated =
-      [...pdfs];
-
-    updated[index].file =
-      res.data.pdfUrl;
-
-    setPdfs(updated);
-
-  }catch(err){
-
-    console.log(err);
-
-  }
-
-};
-
-  // LEARN
-
-  const handleLearnChange = (
-    index,
-    value
-  ) => {
-
-    const updated =
-      [...learnPoints];
-
-    updated[index] = value;
-
-    setLearnPoints(updated);
-  };
-
-  const addLearnPoint = () => {
-
-    setLearnPoints([
-      ...learnPoints,
-      "",
-    ]);
-  };
-
-  // PREREQUISITES
-
-  const handlePrerequisiteChange = (
-    index,
-    value
-  ) => {
-
-    const updated =
-      [...prerequisites];
-
-    updated[index] = value;
-
-    setPrerequisites(updated);
-  };
-
-  const addPrerequisite = () => {
-
-    setPrerequisites([
-      ...prerequisites,
-      "",
-    ]);
-  };
-
-  // PDFS
-
-  const handlePdfChange = (
-    index,
-    field,
-    value
-  ) => {
-
-    const updated =
-      [...pdfs];
-
-    updated[index][field] =
-      value;
-
-    setPdfs(updated);
-  };
-
-  const addPdfField = () => {
-
-    setPdfs([
-      ...pdfs,
-      {
-        title:"",
-        file:"",
-      },
-    ]);
-  };
-
-  // RESET FORM
-
-  const resetForm = () => {
-
-    setTitle("");
-    setAuthor("");
-    setRole("");
-    setEmail("");
-    setBio("");
-    setCategory("");
-    setPrice("");
-    setOldPrice("");
-    setVideo("");
-    setDescription("");
-    setImagePreview("");
-
-    setLearnPoints([""]);
-
-    setPrerequisites([""]);
-
-    setPdfs([
-      {
-        title:"",
-        file:"",
-      },
-    ]);
-
-    setEditingCourseId(null);
-
-    setShowForm(false);
-  };
-
-  // ADD COURSE
-const addCourse =
-async ()=>{
-
-  try{
-
-    const token =
-      localStorage.getItem(
-        "token"
-      );
-
-    const courseData = {
-
-      title,
-      author,
-      category,
-      price,
-      oldPrice:oldPrice,
-      video,
-      description,
-      image:imagePreview,
-
-      learn:learnPoints,
-
-      prerequisites,
-
-      pdfs,
-
-      instructor:{
-        name:author,
-        role,
-        email,
-        bio,
-      }
-
-    };
-
-    await API.post(
-      "/courses",
-      courseData,
-      {
-        headers:{
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
-    );
-
-    fetchCourses();
-
-    resetForm();
-
-    alert(
-      "Course Added"
-    );
-
-  }catch(err){
-
-    console.log(err);
-
-    alert(
-      "Failed To Add Course"
-    );
-
-  }
-
-};
-
-  // DELETE COURSE
-
-const deleteCourse =
-async(id)=>{
-
-  try{
-
-    const token =
-      localStorage.getItem(
-        "token"
-      );
-
-    await API.delete(
-
-      `/courses/${id}`,
-
-      {
-        headers:{
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
-
-    );
-
-    fetchCourses();
-
-  }catch(err){
-
-    console.log(err);
-
-  }
-
-};
-
-  // EDIT COURSE
-
-  const editCourse = (course) => {
-
-    setEditingCourseId(course._id);
-
-    setTitle(course.title);
-    setAuthor(course.author);
-
-    setRole(
-      course.instructor?.role || ""
-    );
-
-    setEmail(
-      course.instructor?.email || ""
-    );
-
-    setBio(
-      course.instructor?.bio || ""
-    );
-
-    setCategory(course.category);
-
-    setPrice(course.price);
-
-    setOldPrice(
-      course.oldPrice || ""
-    );
-
-    setVideo(course.video);
-
-    setDescription(
-      course.description
-    );
-
-    setImagePreview(course.image);
-
-    setLearnPoints(
-      course.learn || [""]
-    );
-
-    setPrerequisites(
-      course.prerequisites || [""]
-    );
-
-    setPdfs(
-      course.pdfs || [
-        {
-          title:"",
-          file:"",
-        },
-      ]
-    );
-
-    setShowForm(true);
-
-    window.scrollTo({
-      top:0,
-      behavior:"smooth",
-    });
-  };
-
-  // UPDATE COURSE
-
-const updateCourse =
-async ()=>{
-
-  try{
-
-    const token =
-      localStorage.getItem(
-        "token"
-      );
-
-    await API.put(
-
-      `/courses/${editingCourseId}`,
-
-      {
-        title,
-        author,
-        category,
-        price,
-        oldPrice:oldPrice,
-        video,
-        description,
-        image:imagePreview,
-
-        learn:learnPoints,
-
-        prerequisites,
-
-        pdfs,
-
-        instructor:{
-          name:author,
-          role,
-          email,
-          bio,
-        }
-
-      },
-
-      {
-        headers:{
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
-
-    );
-
-    fetchCourses();
-
-    resetForm();
-
-    alert(
-      "Course Updated"
-    );
-
-  }catch(err){
-
-    console.log(err);
-
-  }
-
-};
-
-  // SEARCH
-
-  const filteredCourses =
-    courses.filter((course) =>
-
-      course.title
-        .toLowerCase()
-        .includes(
-          search.toLowerCase()
-        )
-    );
+  const Section = ({ id, label, icon, children }) => (
+    <div className="acp-form-section">
+      <button
+        type="button"
+        className={`acp-section-toggle ${expandedSection === id ? "acp-section-toggle--open" : ""}`}
+        onClick={() => setExpandedSection(expandedSection === id ? null : id)}
+      >
+        <span className="acp-section-toggle-left">{icon}<span>{label}</span></span>
+        {expandedSection === id ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+      </button>
+      {expandedSection === id && <div className="acp-section-body">{children}</div>}
+    </div>
+  );
 
   return (
-
     <AdminLayout>
+      <div className="acp-page">
 
-      <div className="admin-course-page">
-
-        {/* TOP */}
-
-        <div className="course-top">
-
-          <h2>
-            Course Management
-          </h2>
-
-          <div className="course-top-actions">
-
-            <input
-              type="text"
-              placeholder="Search course..."
-              value={search}
-              onChange={(e) =>
-                setSearch(
-                  e.target.value
-                )
-              }
-              className="search-course"
-            />
-
-            <button
-              className="add-course-btn"
-              onClick={() => {
-                resetForm();
-                setShowForm(true);
-              }}
-            >
-              + Add Course
-            </button>
-
+        {/* ── TOPBAR ────────────────────────────────────── */}
+        <div className="acp-topbar">
+          <div>
+            <h1 className="acp-page-title">Course Management</h1>
+            <p className="acp-page-sub">{courses.length} course{courses.length !== 1 ? "s" : ""} total</p>
           </div>
-
-        </div>
-
-        {/* FORM */}
-
-        {showForm && (
-
-        <div className="add-course-box">
-          <div className="form-section">
-
-            <h3>Course Thumbnail</h3>
-
-            <div className="thumbnail-card">
-
+          <div className="acp-topbar-right">
+            <div className="acp-search-wrap">
+              <Search size={15} className="acp-search-icon"/>
               <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
+                className="acp-search-input"
+                placeholder="Search courses…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
               />
-
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                />
-              )}
-
             </div>
-            
-          </div>
-
-          
-          <input
-            type="text"
-            placeholder="Author Name"
-            value={author}
-            onChange={(e) =>
-              setAuthor(
-                e.target.value
-              )
-            }
-          />
-
-          <input
-            type="text"
-            placeholder="Instructor Role"
-            value={role}
-            onChange={(e) =>
-              setRole(
-                e.target.value
-              )
-            }
-          />
-
-          <input
-            type="email"
-            placeholder="Instructor Email"
-            value={email}
-            onChange={(e) =>
-              setEmail(
-                e.target.value
-              )
-            }
-          />
-
-          <textarea
-            placeholder="Instructor Bio"
-            value={bio}
-            onChange={(e) =>
-              setBio(
-                e.target.value
-              )
-            }
-          ></textarea>
-
-          <select
-            value={category}
-            onChange={(e) =>
-              setCategory(
-                e.target.value
-              )
-            }
-          >
-            <option value="">Select Category</option>
-            <option value="Web Development">Web Development</option>
-            <option value="Frontend">Frontend</option>
-            <option value="Backend">Backend</option>
-            <option value="Data Science">Data Science</option>
-            <option value="Programming">Programming</option>
-            <option value="Design">Design</option>
-            <option value="DevOps">DevOps</option>
-            <option value="Cloud">Cloud</option>
-            <option value="Mobile">Mobile</option>
-            <option value="Cybersecurity">Cybersecurity</option>
-            <option value="Database">Database</option>
-            <option value="Full Stack">Full Stack</option>
-            <option value="AI/ML">AI/ML</option>
-          </select>
-
-          <input
-            type="text"
-            placeholder="Price"
-            value={price}
-            onChange={(e) =>
-              setPrice(
-                e.target.value
-              )
-            }
-          />
-
-          <input
-            type="text"
-            placeholder="Old Price"
-            value={oldPrice}
-            onChange={(e) =>
-              setOldPrice(
-                e.target.value
-              )
-            }
-          />
-
-          <input
-            type="text"
-            placeholder="Video URL"
-            value={video}
-            onChange={(e) =>
-              setVideo(
-                e.target.value
-              )
-            }
-          />
-
-          <textarea
-            placeholder="Course Description"
-            value={description}
-            onChange={(e) =>
-              setDescription(
-                e.target.value
-              )
-            }
-          ></textarea>
-
-          {/* LEARN */}
-
-          <div>
-
-            <h3>
-              Learn Points
-            </h3>
-
-            {learnPoints.map(
-              (point,index) => (
-
-                <input
-                  key={index}
-                  type="text"
-                  placeholder={`Learn Point ${index + 1}`}
-                  value={point}
-                  onChange={(e) =>
-                    handleLearnChange(
-                      index,
-                      e.target.value
-                    )
-                  }
-                />
-
-              )
-            )}
-
-            <button
-              className="add-course-btn"
-              onClick={
-                addLearnPoint
-              }
-            >
-              Add Learn Point
+            <button className="acp-add-btn" onClick={() => { resetForm(); setShowForm(true); }}>
+              <Plus size={17}/> Add Course
             </button>
-
           </div>
-
-          {/* PREREQUISITES */}
-
-          <div>
-
-            <h3>
-              Prerequisites
-            </h3>
-
-            {prerequisites.map(
-              (item,index) => (
-
-                <input
-                  key={index}
-                  type="text"
-                  placeholder={`Prerequisite ${index + 1}`}
-                  value={item}
-                  onChange={(e) =>
-                    handlePrerequisiteChange(
-                      index,
-                      e.target.value
-                    )
-                  }
-                />
-
-              )
-            )}
-
-            <button
-              className="add-course-btn"
-              onClick={
-                addPrerequisite
-              }
-            >
-              Add Prerequisite
-            </button>
-
-          </div>
-
-          {/* PDFS */}
-
-          <div>
-
-            <h3>
-              PDFs
-            </h3>
-
-            {pdfs.map(
-              (pdf,index) => (
-              
-                <div key={index}>
-                
-                  <input
-                    type="text"
-                    placeholder="PDF Title"
-                    value={pdf.title}
-                    onChange={(e) =>
-                      handlePdfChange(
-                        index,
-                        "title",
-                        e.target.value
-                      )
-                    }
-                  />
-
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={(e) =>
-                      handlePdfUpload(
-                        index,
-                        e
-                      )
-                    }
-                  />
-
-                  {pdf.file && (
-                  
-                    <p>
-                    
-                      ✅ PDF Uploaded
-                  
-                    </p>
-
-                  )}
-
-                </div>
-
-              )
-            )}
-
-            <button
-              className="add-course-btn"
-              onClick={
-                addPdfField
-              }
-            >
-              Add PDF
-            </button>
-
-          </div>
-
-          {/* BUTTON */}
-
-          <div className="form-buttons">
-
-            {
-              editingCourseId ? (
-
-                <>
-
-                  <button
-                    className="add-course-btn"
-                    onClick={updateCourse}
-                  >
-                    Update Course
-                  </button>
-
-                  <button
-                    className="cancel-course-btn"
-                    onClick={resetForm}
-                  >
-                    Cancel
-                  </button>
-
-                </>
-
-              ) : (
-
-                <>
-
-                  <button
-                    className="add-course-btn"
-                    onClick={addCourse}
-                  >
-                    Add Course
-                  </button>
-
-                  <button
-                    className="cancel-course-btn"
-                    onClick={resetForm}
-                  >
-                    Cancel
-                  </button>
-
-                </>
-
-              )
-            }
-
-          </div>
-
         </div>
 
-        )}
+        {/* ── FORM PANEL ────────────────────────────────── */}
+        {showForm && (
+          <div className="acp-form-panel">
+            <div className="acp-form-panel-header">
+              <div>
+                <h2>{editingId ? "Edit Course" : "Add New Course"}</h2>
+                <p>{editingId ? "Update the course details below" : "Fill in the details to create a new course"}</p>
+              </div>
+              <button className="acp-close-btn" onClick={resetForm}><X size={18}/></button>
+            </div>
 
-        {/* IMAGE PREVIEW */}
-
-        {imagePreview && (
-
-          <div className="preview-box">
-
-            <h4>
-              Thumbnail Preview
-            </h4>
-
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="preview-image"
-            />
-
-          </div>
-
-        )}
-
-        {/* COURSE LIST */}
-
-        <div className="admin-course-list">
-
-          <h2>
-            All Courses
-          </h2>
-
-          <div className="course-grid">
-
-            {filteredCourses.map(
-              (course) => (
-
-                <div
-                  className="course-card-admin"
-                  key={course._id}
-                >
-
-                  <img
-                    src={course.image}
-                    alt={course.title}
-                    className="course-admin-image"
-                  />
-
-                  <div className="course-admin-content">
-
-                    <h3>
-                      {course.title}
-                    </h3>
-
-                    <p>
-                      {course.author}
-                    </p>
-
-                    <span>
-                      {course.category}
-                    </span>
-
-                    <div className="course-admin-price">
-
-                      <strong>
-                        {course.price}
-                      </strong>
-
-                    </div>
-
-                    <div className="course-admin-actions">
-
-                      <button
-                        className="edit-course-btn"
-                        onClick={() =>
-                          editCourse(course)
-                        }
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        className="delete-course-btn"
-                        onClick={() =>
-                          deleteCourse(course._id)
-                        }
-                      >
-                        Delete
-                      </button>
-
-                    </div>
-
-                  </div>
-
+            {/* BASIC INFO */}
+            <Section id="basic" label="Basic Information" icon={<BookOpen size={16}/>}>
+              <div className="acp-grid-2">
+                <div className="acp-field">
+                  <label>Course Title *</label>
+                  <input placeholder="e.g. Full Stack Web Development" value={form.title} onChange={e => set("title", e.target.value)}/>
                 </div>
+                <div className="acp-field">
+                  <label>Category *</label>
+                  <select value={form.category} onChange={e => set("category", e.target.value)}>
+                    <option value="">Select category…</option>
+                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="acp-field">
+                <label>Description</label>
+                <textarea rows={4} placeholder="Describe what students will learn…" value={form.description} onChange={e => set("description", e.target.value)}/>
+              </div>
+              <div className="acp-grid-2">
+                <div className="acp-field">
+                  <label>Price (₹) *</label>
+                  <input placeholder="e.g. 999" value={form.price} onChange={e => set("price", e.target.value)}/>
+                </div>
+                <div className="acp-field">
+                  <label>Old Price (₹)</label>
+                  <input placeholder="e.g. 2999" value={form.oldPrice} onChange={e => set("oldPrice", e.target.value)}/>
+                </div>
+              </div>
+              <div className="acp-field">
+                <label>Video URL (YouTube Embed)</label>
+                <div className="acp-input-icon-wrap">
+                  <Link2 size={15} className="acp-input-icon"/>
+                  <input placeholder="https://www.youtube.com/embed/…" value={form.video} onChange={e => set("video", e.target.value)} style={{paddingLeft:"38px"}}/>
+                </div>
+              </div>
+            </Section>
 
-              )
-            )}
+            {/* THUMBNAIL */}
+            <Section id="thumbnail" label="Course Thumbnail" icon={<ImagePlus size={16}/>}>
+              <div className="acp-thumb-area">
+                {form.image ? (
+                  <div className="acp-thumb-preview">
+                    <img src={form.image} alt="Thumbnail"/>
+                    <button className="acp-thumb-remove" onClick={() => set("image","")}>
+                      <X size={14}/>
+                    </button>
+                  </div>
+                ) : (
+                  <label className="acp-thumb-upload">
+                    <Upload size={24}/>
+                    <span>Click to upload image</span>
+                    <small>JPG, PNG, WEBP</small>
+                    <input type="file" accept="image/*" onChange={handleImageUpload} hidden/>
+                  </label>
+                )}
+              </div>
+            </Section>
 
+            {/* INSTRUCTOR */}
+            <Section id="instructor" label="Instructor Details" icon={<BookOpen size={16}/>}>
+              <div className="acp-grid-2">
+                <div className="acp-field">
+                  <label>Instructor Name</label>
+                  <input placeholder="e.g. Rahul Sharma" value={form.author} onChange={e => set("author", e.target.value)}/>
+                </div>
+                <div className="acp-field">
+                  <label>Instructor Role</label>
+                  <input placeholder="e.g. Senior Dev @ Google" value={form.role} onChange={e => set("role", e.target.value)}/>
+                </div>
+              </div>
+              <div className="acp-field">
+                <label>Instructor Email</label>
+                <input type="email" placeholder="instructor@email.com" value={form.email} onChange={e => set("email", e.target.value)}/>
+              </div>
+              <div className="acp-field">
+                <label>Bio</label>
+                <textarea rows={3} placeholder="Brief instructor bio…" value={form.bio} onChange={e => set("bio", e.target.value)}/>
+              </div>
+            </Section>
+
+            {/* LEARN POINTS */}
+            <Section id="learn" label="What You'll Learn" icon={<CheckCircle2 size={16}/>}>
+              {form.learnPoints.map((pt, i) => (
+                <div key={i} className="acp-list-field">
+                  <input placeholder={`Learning point ${i+1}`} value={pt} onChange={e => setListItem("learnPoints", i, e.target.value)}/>
+                  {form.learnPoints.length > 1 && (
+                    <button className="acp-list-remove" onClick={() => removeListItem("learnPoints", i)}><X size={14}/></button>
+                  )}
+                </div>
+              ))}
+              <button className="acp-add-item-btn" onClick={() => addListItem("learnPoints","")}>
+                <Plus size={14}/> Add Point
+              </button>
+            </Section>
+
+            {/* PREREQUISITES */}
+            <Section id="prereq" label="Prerequisites" icon={<CheckCircle2 size={16}/>}>
+              {form.prerequisites.map((pt, i) => (
+                <div key={i} className="acp-list-field">
+                  <input placeholder={`Prerequisite ${i+1}`} value={pt} onChange={e => setListItem("prerequisites", i, e.target.value)}/>
+                  {form.prerequisites.length > 1 && (
+                    <button className="acp-list-remove" onClick={() => removeListItem("prerequisites", i)}><X size={14}/></button>
+                  )}
+                </div>
+              ))}
+              <button className="acp-add-item-btn" onClick={() => addListItem("prerequisites","")}>
+                <Plus size={14}/> Add Prerequisite
+              </button>
+            </Section>
+
+            {/* PDFS */}
+            <Section id="pdfs" label="Course PDFs" icon={<FileText size={16}/>}>
+              {form.pdfs.map((pdf, i) => (
+                <div key={i} className="acp-pdf-row">
+                  <input placeholder="PDF title" value={pdf.title} onChange={e => setPdfField(i, "title", e.target.value)}/>
+                  <label className="acp-pdf-upload-btn">
+                    <Upload size={13}/> {pdf.file ? "Uploaded ✓" : "Upload PDF"}
+                    <input type="file" accept=".pdf" onChange={e => handlePdfUpload(i, e)} hidden/>
+                  </label>
+                  {form.pdfs.length > 1 && (
+                    <button className="acp-list-remove" onClick={() => removeListItem("pdfs", i)}><X size={14}/></button>
+                  )}
+                </div>
+              ))}
+              <button className="acp-add-item-btn" onClick={() => addListItem("pdfs", {title:"",file:""})}>
+                <Plus size={14}/> Add PDF
+              </button>
+            </Section>
+
+            {/* FORM FOOTER */}
+            <div className="acp-form-footer">
+              <button className="acp-cancel-btn" onClick={resetForm}><X size={15}/> Cancel</button>
+              <button className="acp-save-btn" onClick={handleSave} disabled={saving}>
+                {saving ? <><span className="acp-spinner"/>Saving…</> : <><Save size={15}/>{editingId ? "Update Course" : "Add Course"}</>}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── COURSES GRID ──────────────────────────────── */}
+        <div className="acp-courses-section">
+          <div className="acp-courses-header">
+            <h2>All Courses <span>({filtered.length})</span></h2>
           </div>
 
+          {filtered.length === 0 ? (
+            <div className="acp-empty">
+              <BookOpen size={40}/>
+              <h3>No courses found</h3>
+              <p>Add your first course or try a different search term</p>
+            </div>
+          ) : (
+            <div className="acp-course-grid">
+              {filtered.map(course => (
+                <div className="acp-course-card" key={course._id}>
+                  <div className="acp-course-thumb">
+                    <img
+                      src={course.image}
+                      alt={course.title}
+                      onError={e => { e.target.src = "https://images.unsplash.com/photo-1593720219276-0b1eacd0aef4?w=400&h=220&fit=crop"; }}
+                    />
+                    <span className="acp-course-cat-badge">{course.category}</span>
+                  </div>
+                  <div className="acp-course-body">
+                    <h3 className="acp-course-title">{course.title}</h3>
+                    <p className="acp-course-author">by {course.author}</p>
+                    <div className="acp-course-meta">
+                      <span className="acp-price">₹{course.price}</span>
+                      {course.oldPrice && <span className="acp-old-price">₹{course.oldPrice}</span>}
+                      <span className="acp-rating">{course.rating}</span>
+                    </div>
+                  </div>
+                  <div className="acp-course-actions">
+                    <button className="acp-edit-btn" onClick={() => handleEdit(course)}>
+                      <Pencil size={14}/> Edit
+                    </button>
+                    <button
+                      className="acp-delete-btn"
+                      onClick={() => handleDelete(course._id)}
+                      disabled={deleting === course._id}
+                    >
+                      <Trash2 size={14}/> {deleting === course._id ? "…" : "Delete"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
-
     </AdminLayout>
-
   );
 }
